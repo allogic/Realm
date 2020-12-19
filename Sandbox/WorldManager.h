@@ -126,7 +126,7 @@ struct WorldManager : Actor
   u32v2                        mNumSprites              { 10, 10 };
   u32v2                        mSpriteSize              { 1, 1 };
 
-  TextureArray*                mpTextureEnvironmentAtlas{ ACS::Attach<TextureArray>(this, ROOT_PATH "Textures\\EnvironmentAtlas.png", 14u, 100u) };
+  TextureArray*                mpTextureEnvironmentAtlas{ ACS::Attach<TextureArray>(this, ROOT_PATH "Textures\\EnvironmentAtlas.png", 16u, 100u) };
 
   RenderShader*                mpRenderSprite           { ACS::Attach<RenderShader>(this, spSpriteVertexShader, spSpriteFragmentShader) };
   ComputeShader*               mpComputeSprite          { ACS::Attach<ComputeShader>(this, spSpriteComputeShader) };
