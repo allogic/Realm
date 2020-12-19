@@ -1,5 +1,7 @@
 #pragma once
 
+#define ROOT_PATH "C:\\Users\\Michael\\Downloads\\Realm\\"
+
 #include <array>
 #include <vector>
 #include <map>

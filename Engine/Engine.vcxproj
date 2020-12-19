@@ -150,10 +150,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ACS.h" />
     <ClInclude Include="Api.h" />
+    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureArray.h" />
+    <ClInclude Include="Buffers\Transform.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="GenericBuffer.h" />
+    <ClInclude Include="ComputeShader.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Event.h" />
+    <ClInclude Include="Instance.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Renderer.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="RenderShader.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="Uniforms\Projection.h" />
+    <ClInclude Include="Utility.h" />
+    <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

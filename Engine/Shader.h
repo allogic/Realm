@@ -2,38 +2,62 @@
 
 #include <Core.h>
 #include <Types.h>
-
-#include <Interface/Shader.h>
+#include <ACS.h>
 
 /*
-* Render shader.
+* Shader base.
 */
 
-struct RenderShader : Shader
+struct Shader : Component
 {
-  RenderShader(s8 const* pVertexSource, s8 const* pFragmentSource);
+  u32 mProgramId{};
+
+  Shader();
+  virtual ~Shader();
+
+  void Bind();
+
+  u32 CompileShader(u32 shaderId, s8 const* pShaderSource);
+
+  template<typename ... ShaderIds>
+  requires (std::is_same_v<u32, typename Identity<ShaderIds>::Type> && ...)
+  u32 LinkShader(ShaderIds ... shaderIds);
+
+  u32 CheckCompileStatus(u32 shaderId);
+  u32 CheckLinkStatus();
 };
 
 /*
-* Compute shader.
+* Shader base implementation.
 */
 
-struct ComputeShader : Shader
+Shader::Shader()
 {
-  ComputeShader(s8 const* pComputeSource);
-};
+  mProgramId = glCreateProgram();
 
-/*
-* Render shader implementation.
-*/
-
-Shader::Shader(s8 const* pVertexSOurce, s8 const* pFragmentSource)
-{
-
+  assert(mProgramId);
 }
 Shader::~Shader()
 {
-  glDeleteProgram(mPid);
+  glDeleteProgram(mProgramId);
+}
+
+u32 Shader::CompileShader(u32 shaderId, s8 const* pShaderSource)
+{
+  glShaderSource(shaderId, 1, &pShaderSource, nullptr);
+  glCompileShader(shaderId);
+
+  return CheckCompileStatus(shaderId);
+}
+
+template<typename ... ShaderIds>
+requires (std::is_same_v<u32, typename Identity<ShaderIds>::Type> && ...)
+u32 Shader::LinkShader(ShaderIds ... shaderIds)
+{
+  (glAttachShader(mProgramId, shaderIds), ...);
+  glLinkProgram(mProgramId);
+
+  return CheckLinkStatus();
 }
 
 u32 Shader::CheckCompileStatus(u32 shaderId)
@@ -48,12 +72,12 @@ u32 Shader::CheckCompileStatus(u32 shaderId)
   {
     glGetShaderInfoLog(shaderId, infoLogLength, &infoLogLength, log);
 
-    std::printf("Shader %s", log);
+    std::printf("Shader %s\n", log);
 
-    return 0;
+    return 1;
   }
 
-  return 1;
+  return 0;
 }
 u32 Shader::CheckLinkStatus()
 {
@@ -61,127 +85,20 @@ u32 Shader::CheckLinkStatus()
   s32 infoLogLength{ 1024 };
   s8 log[1024]{};
 
-  glGetProgramiv(mPid, GL_LINK_STATUS, &linkStatus);
+  glGetProgramiv(mProgramId, GL_LINK_STATUS, &linkStatus);
 
   if (!linkStatus)
   {
-    glGetProgramInfoLog(mPid, infoLogLength, &infoLogLength, log);
+    glGetProgramInfoLog(mProgramId, infoLogLength, &infoLogLength, log);
 
-    std::printf("Shader %s", log);
+    std::printf("Shader %s\n", log);
 
-    return 0;
+    return 1;
   }
 
-  return 1;
+  return 0;
 }
 void Shader::Bind()
 {
-  glUseProgram(mPid);
-}
-
-/*
-* Shader management.
-*/
-
-template<typename ShaderLayout> void ShaderLayoutDestroy(ShaderLayout const& shaderLayout)
-{
-  if (shaderLayout.mVertId) glDeleteShader(shaderLayout.mVertId);
-  if (shaderLayout.mFragId) glDeleteShader(shaderLayout.mFragId);
-  if (shaderLayout.mCompId) glDeleteShader(shaderLayout.mCompId);
-
-  if (shaderLayout.mProgId) glDeleteProgram(shaderLayout.mProgId);
-}
-template<typename ShaderLayout> void ShaderLayoutCreate(ShaderLayout& shaderLayout, ShaderPaths const& shaderPaths)
-{
-  std::string log{};
-
-  switch (ShaderLayout::sLayout)
-  {
-  case eShaderLayoutLambert:
-  case eShaderLayoutLambertInstanced:
-  case eShaderLayoutGizmo:
-  case eShaderLayoutScreen:
-  {
-    shaderLayout.mVertId = glCreateShader(GL_VERTEX_SHADER);
-    shaderLayout.mFragId = glCreateShader(GL_FRAGMENT_SHADER);
-    break;
-  }
-  case eShaderLayoutCompute:
-  {
-    shaderLayout.mCompId = glCreateShader(GL_COMPUTE_SHADER);
-    break;
-  }
-  }
-
-  std::vector<s8> shaderBytes{};
-
-  switch (ShaderLayout::sLayout)
-  {
-  case eShaderLayoutLambert:
-  case eShaderLayoutLambertInstanced:
-  case eShaderLayoutGizmo:
-  case eShaderLayoutScreen:
-  {
-    ShaderLayoutLoadBinary(shaderBytes, shaderPaths.mVertex);
-    glShaderBinary(1, &shaderLayout.mVertId, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderBytes.data(), (s32)shaderBytes.size());
-    glSpecializeShader(shaderLayout.mVertId, "main", 0, nullptr, nullptr);
-    if (!ShaderLayoutCheckCompileStatus(shaderLayout.mVertId, log)) std::printf("%s\n", log.data());
-
-    ShaderLayoutLoadBinary(shaderBytes, shaderPaths.mFragment);
-    glShaderBinary(1, &shaderLayout.mFragId, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderBytes.data(), (s32)shaderBytes.size());
-    glSpecializeShader(shaderLayout.mFragId, "main", 0, nullptr, nullptr);
-    if (!ShaderLayoutCheckCompileStatus(shaderLayout.mFragId, log)) std::printf("%s\n", log.data());
-    break;
-  }
-  case eShaderLayoutCompute:
-  {
-    ShaderLayoutLoadBinary(shaderBytes, shaderPaths.mCompute);
-    glShaderBinary(1, &shaderLayout.mCompId, GL_SHADER_BINARY_FORMAT_SPIR_V, shaderBytes.data(), (s32)shaderBytes.size());
-    glSpecializeShader(shaderLayout.mCompId, "main", 0, nullptr, nullptr);
-    if (!ShaderLayoutCheckCompileStatus(shaderLayout.mCompId, log)) std::printf("%s\n", log.data());
-    break;
-  }
-  }
-
-  shaderLayout.mProgId = glCreateProgram();
-
-  switch (ShaderLayout::sLayout)
-  {
-  case eShaderLayoutLambert:
-  case eShaderLayoutLambertInstanced:
-  case eShaderLayoutGizmo:
-  case eShaderLayoutScreen:
-  {
-    glAttachShader(shaderLayout.mProgId, shaderLayout.mVertId);
-    glAttachShader(shaderLayout.mProgId, shaderLayout.mFragId);
-    break;
-  }
-  case eShaderLayoutCompute:
-  {
-    glAttachShader(shaderLayout.mProgId, shaderLayout.mCompId);
-    break;
-  }
-  }
-
-  glLinkProgram(shaderLayout.mProgId);
-
-  if (!ShaderLayoutCheckLinkStatus(shaderLayout.mProgId, log)) std::printf("%s\n", log.data());
-
-  switch (ShaderLayout::sLayout)
-  {
-  case eShaderLayoutLambert:
-  case eShaderLayoutLambertInstanced:
-  case eShaderLayoutGizmo:
-  case eShaderLayoutScreen:
-  {
-    glDetachShader(shaderLayout.mProgId, shaderLayout.mVertId);
-    glDetachShader(shaderLayout.mProgId, shaderLayout.mFragId);
-    break;
-  }
-  case eShaderLayoutCompute:
-  {
-    glDetachShader(shaderLayout.mProgId, shaderLayout.mCompId);
-    break;
-  }
-  }
+  glUseProgram(mProgramId);
 }

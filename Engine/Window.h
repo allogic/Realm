@@ -3,6 +3,9 @@
 #include <Core.h>
 #include <Types.h>
 #include <Event.h>
+#include <Renderer.h>
+#include <ACS.h>
+#include <Instance.h>
 
 /*
 * Window graphic context.
@@ -19,7 +22,8 @@ struct Window
   Event       mMouseKeyStates[GLFW_MOUSE_BUTTON_LAST]{};
   Event       mKeyboardKeyStates[GLFW_KEY_LAST - 32]{};
 
-  Window(u32 width, u32 height, s8 const* pTitle, u8 registerDebugMessenger);
+  Window();
+  Window(u32 width, u32 height, s8 const* pTitle, u32 registerDebugMessenger);
   virtual ~Window();
 
   u32 Run();
@@ -41,7 +45,12 @@ struct Window
 * Window graphic context implementation.
 */
 
-Window::Window(u32 width, u32 height, s8 const* pTitle, u8 registerDebugMessenger)
+Window::Window()
+  : Window{ 1280, 720, "Realm", 0 }
+{
+  
+}
+Window::Window(u32 width, u32 height, s8 const* pTitle, u32 registerDebugMessenger)
   : mWidth{ width }
   , mHeight{ height }
 {
@@ -71,7 +80,8 @@ Window::Window(u32 width, u32 height, s8 const* pTitle, u8 registerDebugMessenge
 
     glDebugMessageCallback([](u32 source, u32 type, u32 id, u32 severity, s32 length, s8 const* pMsg, void const* pUserParam)
       {
-        std::printf("Error[%u] %s\n", type, pMsg);
+        if (severity == GL_DEBUG_SEVERITY_MEDIUM || severity == GL_DEBUG_SEVERITY_HIGH)
+          std::printf("Error[%u] %s\n", type, pMsg);
       }, 0);
   }
 
@@ -124,6 +134,8 @@ u32 Window::Run()
   r32 timeRender{ 1.f / 60 };
   r32 timeRenderPrev{};
 
+  Renderer* pRenderer{ Instance<Renderer>::Get("Renderer", mWidth, mHeight) };
+
   while (!mStatus)
   {
     PollEvents();
@@ -131,8 +143,24 @@ u32 Window::Run()
     time = (r32)glfwGetTime();
     timeDelta = time - timePrev;
 
+    ACS::Update();
+
+    ACS::Dispatch([=](Actor* pActor)
+      {
+        pActor->OnUpdate(time, timeDelta);
+      });
+
     if ((time - timeRenderPrev) >= timeRender)
     {
+      ACS::Dispatch([=](Actor* pActor)
+        {
+          pActor->OnUpdateFixed(time, timeDelta);
+        });
+
+      pRenderer->Begin();
+      pRenderer->Render();
+      pRenderer->End();
+
       glfwSwapBuffers(mpContext);
 
       timeRenderPrev = time;
@@ -141,7 +169,7 @@ u32 Window::Run()
     timePrev = time;
   }
 
-  return mStatus;
+  return mStatus == 1 ? 0 : mStatus;
 }
 void Window::PollEvents()
 {
@@ -179,7 +207,7 @@ void Window::PollEvents()
       }
     }
   }
-  for (u32 i{ 32 }; i < GLFW_KEY_LAST; i++)
+  for (u32 i{ 32 }; i < GLFW_KEY_LAST - 32; i++)
   {
     Event& event{ mKeyboardKeyStates[i] };
     s32 action{ glfwGetKey(mpContext, (s32)i) };

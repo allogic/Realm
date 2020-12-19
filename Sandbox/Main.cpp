@@ -1,9 +1,17 @@
 #pragma once
 
-#define ENGINE_IMLEMENTATION
+#define ENGINE_IMPLEMENTATION
 #include <Api.h>
+
+#include <WorldManager.h>
+#include <Player.h>
 
 s32 main()
 {
-  return Window{ 1280, 720, "Realm", 1 }.Run();
+  Window* mpWindow{ Instance<Window>::Get("Window", 1280u, 720u, "Realm", 1u) };
+
+  WorldManager* pWorldManager{ ACS::Create<WorldManager>("WorldManager") };
+  Player* pPlayer{ ACS::Create<Player>("Player") };
+
+  return mpWindow->Run();
 }
