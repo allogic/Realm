@@ -1,31 +1,4 @@
-#pragma once
-
-#include <Core.h>
-#include <Types.h>
-#include <ACS.h>
-
-/*
-* Shader base.
-*/
-
-struct Shader : Component
-{
-  u32 mProgramId{};
-
-  Shader();
-  virtual ~Shader();
-
-  void Bind();
-
-  u32 CompileShader(u32 shaderId, s8 const* pShaderSource);
-
-  template<typename ... ShaderIds>
-  requires (std::is_same_v<u32, typename Identity<ShaderIds>::Type> && ...)
-  u32 LinkShader(ShaderIds ... shaderIds);
-
-  u32 CheckCompileStatus(u32 shaderId);
-  u32 CheckLinkStatus();
-};
+#include <Components/Shader.h>
 
 /*
 * Shader base implementation.
@@ -48,16 +21,6 @@ u32 Shader::CompileShader(u32 shaderId, s8 const* pShaderSource)
   glCompileShader(shaderId);
 
   return CheckCompileStatus(shaderId);
-}
-
-template<typename ... ShaderIds>
-requires (std::is_same_v<u32, typename Identity<ShaderIds>::Type> && ...)
-u32 Shader::LinkShader(ShaderIds ... shaderIds)
-{
-  (glAttachShader(mProgramId, shaderIds), ...);
-  glLinkProgram(mProgramId);
-
-  return CheckLinkStatus();
 }
 
 u32 Shader::CheckCompileStatus(u32 shaderId)

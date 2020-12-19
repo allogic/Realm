@@ -9,9 +9,10 @@
 s32 main()
 {
   Window* mpWindow{ Instance<Window>::Get("Window", 1280u, 720u, "Realm", 1u) };
+  Renderer* mpRenderer{ Instance<Renderer>::Get("Renderer", 1280u, 720u) };
 
-  WorldManager* pWorldManager{ ACS::Create<WorldManager>("WorldManager") };
-  Player* pPlayer{ ACS::Create<Player>("Player") };
+  ACS::Create<WorldManager>("WorldManager");
+  ACS::Create<Player>("Player");
 
-  return mpWindow->Run();
+  return mpWindow->Run(mpRenderer);
 }

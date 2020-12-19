@@ -15,15 +15,15 @@ struct Instance
   template<typename ... Args>
   inline static T* Get(s8 const* key, Args&& ... args)
   {
-    auto const searchIt{ sInstanceDatabase.find(key) };
+    auto const instanceIt{ sInstanceDatabase.find(key) };
 
-    if (searchIt == sInstanceDatabase.end())
+    if (instanceIt == sInstanceDatabase.end())
     {
       auto const [insertIt, _] { sInstanceDatabase.emplace(key, new T{ std::forward<Args>(args) ... }) };
 
       return insertIt->second;
     }
 
-    return searchIt->second;
+    return instanceIt->second;
   }
 };

@@ -152,24 +152,39 @@
   <ItemGroup>
     <ClInclude Include="ACS.h" />
     <ClInclude Include="Api.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="TextureArray.h" />
-    <ClInclude Include="Buffers\Transform.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="GenericBuffer.h" />
-    <ClInclude Include="ComputeShader.h" />
+    <ClInclude Include="Component.h" />
+    <ClInclude Include="Actor.h" />
+    <ClInclude Include="Shaders\Gizmo.h" />
+    <ClInclude Include="ShaderUtilities.h" />
+    <ClInclude Include="Components\Texture.h" />
+    <ClInclude Include="Components\TextureArray.h" />
+    <ClInclude Include="Buffers\Sprite.h" />
+    <ClInclude Include="Components\Camera.h" />
+    <ClInclude Include="Components\GenericBuffer.h" />
+    <ClInclude Include="Components\ComputeShader.h" />
+    <ClInclude Include="Components\Transform.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Event.h" />
     <ClInclude Include="Instance.h" />
-    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Components\Mesh.h" />
     <ClInclude Include="Renderer.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="RenderShader.h" />
+    <ClInclude Include="Components\Shader.h" />
+    <ClInclude Include="Components\RenderShader.h" />
     <ClInclude Include="Types.h" />
     <ClInclude Include="Uniforms\Projection.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Components\ComputeShader.cpp" />
+    <ClCompile Include="Components\RenderShader.cpp" />
+    <ClCompile Include="Components\Shader.cpp" />
+    <ClCompile Include="Components\Texture.cpp" />
+    <ClCompile Include="Components\TextureArray.cpp" />
+    <ClCompile Include="Components\Transform.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

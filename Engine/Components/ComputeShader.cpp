@@ -1,20 +1,4 @@
-#pragma once
-
-#include <Core.h>
-#include <Types.h>
-#include <Shader.h>
-
-/*
-* Compute shader.
-*/
-
-struct ComputeShader : Shader
-{
-  u32 mComputeId{};
-
-  ComputeShader(s8 const* pComputeSource);
-  virtual ~ComputeShader();
-};
+#include <Components/ComputeShader.h>
 
 /*
 * Compute shader implementation.
@@ -37,4 +21,9 @@ ComputeShader::ComputeShader(s8 const* pComputeSource)
 ComputeShader::~ComputeShader()
 {
   glDeleteShader(mComputeId);
+}
+
+void ComputeShader::Execute(u32 numThreadX, u32 numThreadY, u32 numThreadZ)
+{
+  glDispatchCompute(numThreadX, numThreadY, numThreadZ);
 }

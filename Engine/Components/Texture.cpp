@@ -1,29 +1,10 @@
-#pragma once
-
-#include <Core.h>
-#include <Types.h>
-#include <ACS.h>
+#include <Components/Texture.h>
 
 /*
-* Texture array base.
+* Texture base implementation.
 */
 
-struct TextureArray : Component
-{
-  u32 mTextureId{};
-
-  TextureArray(s8 const* pTextureSource, u32 tileSize, u32 numTilesX);
-  virtual ~TextureArray();
-
-  void Bind();
-  void Map(u32 mountIndex);
-};
-
-/*
-* Texture array base implementation.
-*/
-
-TextureArray::TextureArray(s8 const* pTextureSource, u32 tileSize, u32 numTiles)
+Texture::Texture(s8 const* pTextureSource)
 {
   u32 width{};
   u32 height{};
@@ -48,8 +29,7 @@ TextureArray::TextureArray(s8 const* pTextureSource, u32 tileSize, u32 numTiles)
 
   assert(mTextureId);
 
-  glBindTexture(GL_TEXTURE_2D_ARRAY, mTextureId);
-  glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA32F, tileSize - 2, tileSize - 2, numTiles);
+  glBindTexture(GL_TEXTURE_2D, mTextureId);
 
   glTextureParameteri(mTextureId, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTextureParameteri(mTextureId, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -57,20 +37,20 @@ TextureArray::TextureArray(s8 const* pTextureSource, u32 tileSize, u32 numTiles)
   glTextureParameteri(mTextureId, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTextureParameteri(mTextureId, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-  glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, tileSize - 2, tileSize - 2, numTiles, GL_RGBA, GL_FLOAT, textureBuffer.data());
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, textureBuffer.data());
 
-  glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 }
-TextureArray::~TextureArray()
+Texture::~Texture()
 {
 
 }
 
-void TextureArray::Bind()
+void Texture::Bind()
 {
-  glBindTexture(GL_TEXTURE_2D_ARRAY, mTextureId);
+  glBindTexture(GL_TEXTURE_2D, mTextureId);
 }
-void TextureArray::Map(u32 mountIndex)
+void Texture::Map(u32 mountIndex)
 {
   glBindTextureUnit(mountIndex, mTextureId);
 }

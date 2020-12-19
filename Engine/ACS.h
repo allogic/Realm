@@ -2,30 +2,8 @@
 
 #include <Core.h>
 #include <Types.h>
-#include <Utility.h>
-
-/*
-* Forward decls.
-*/
-
-struct Actor;
-
-/*
-* Default components.
-*/
-
-struct Component
-{
-  Actor* mpActor{};
-};
-struct Transform : Component
-{
-  r32v3 mPosition{};
-  r32v3 mRotation{};
-  r32v3 mScale   { 1.f, 1.f, 1.f };
-
-  r32m4 LocalToWorld();
-};
+#include <Actor.h>
+#include <Component.h>
 
 /*
 * Actor component system.
@@ -38,36 +16,26 @@ struct Object
   std::array<Component*, 64> mComponents {};
   u32                        mDestroyFlag{};
 };
-struct Actor
-{
-  Actor*              mpParent   {};
-  std::vector<Actor*> mChilds    {};
 
-  Transform*          mpTransform{};
-
-  s8 const*           mpName     {};
-  Object*             mpObject   {};
-
-  Actor(Object* pObject) : mpObject{ pObject } {}
-
-  virtual void OnUpdate(r32 time, r32 timeDelta)      {}
-  virtual void OnUpdateFixed(r32 time, r32 timeDelta) {}
-  virtual void OnGizmo()                              {}
-};
-
-static std::map<s8 const*, Object*> sObjectRegistry  {};
-static u64                          sUniqueTypeCount {};
-static std::map<u64, u64>           sIdentityRegistry{};
+#ifdef ENGINE_IMPLEMENTATION
+std::map<s8 const*, Object*> sObjectRegistry  {};
+u64                          sUniqueTypeCount {};
+std::map<u64, u64>           sIdentityRegistry{};
+#else
+extern std::map<s8 const*, Object*> sObjectRegistry;
+extern u64                          sUniqueTypeCount;
+extern std::map<u64, u64>           sIdentityRegistry;
+#endif
 
 namespace ACS
 {
   /*
   * Helper utilities.
-  */
+  */  
 
   template<typename C>
   requires std::is_base_of_v<Component, C>
-  u64 ComponentToIndex()
+  static u64 ComponentToIndex()
   {
     auto const identityIt{ sIdentityRegistry.find(typeid(C).hash_code()) };
 
@@ -91,7 +59,7 @@ namespace ACS
 
   template<typename C, typename ... Args>
   requires std::is_base_of_v<Component, C>
-  C* Attach(Actor* pActor, Args&& ... args)
+  static C* Attach(Actor* pActor, Args&& ... args)
   {
     u64 const componentIndex{ ComponentToIndex<C>() };
     u64 const componentMask{ (u64)1 << componentIndex };
@@ -115,7 +83,7 @@ namespace ACS
 
   template<typename C>
   requires std::is_base_of_v<Component, C>
-  C* Find(Actor* pActor)
+  static C* Find(Actor* pActor)
   {
     u64 const componentIndex{ ComponentToIndex<C>() };
     u64 const componentMask{ (u64)1 << componentIndex };
@@ -136,7 +104,7 @@ namespace ACS
 
   template<typename A, typename ... Args>
   requires std::is_base_of_v<Actor, A>
-  A* Create(s8 const* pName, Args&& ... args)
+  static A* Create(s8 const* pName, Args&& ... args)
   {
     auto const objectIt{ sObjectRegistry.find(pName) };
 
@@ -148,6 +116,8 @@ namespace ACS
 
       // create actor at least in order to maintain sub-component order initialization 
       pObject->mpActor = new A{ pObject, std::forward<Args>(args) ... };
+      pObject->mpActor->mpWindow = Instance<Window>::Get("Window");
+      pObject->mpActor->mpRenderer = Instance<Renderer>::Get("Renderer");
       pObject->mpActor->mpName = pName;
 
       // attach default components
@@ -161,7 +131,7 @@ namespace ACS
 
   template<typename A, typename ... Args>
   requires std::is_base_of_v<Actor, A>
-  A* CreateChild(Actor* pActor, s8 const* pName, Args&& ... args)
+  static A* CreateChild(Actor* pActor, s8 const* pName, Args&& ... args)
   {
     A* pChild{ Create<A>(pName, std::forward<Args>(args) ...) };
     pChild->mpParent = pActor;
@@ -215,7 +185,7 @@ namespace ACS
 
   template<typename ... Comps>
   requires (std::is_base_of_v<Component, typename Identity<Comps>::Type> && ...)
-  void Dispatch(std::function<void(Actor*)>&& predicate)
+  static void Dispatch(std::function<void(Actor*)>&& predicate)
   {
     for (auto const& [actorName, pObject] : sObjectRegistry)
     {
@@ -228,7 +198,7 @@ namespace ACS
 
   template<typename ... Comps>
   requires (std::is_base_of_v<Component, typename Identity<Comps>::Type> && ...)
-  void DispatchFor(std::function<void(typename Identity<Comps>::Ptr ...)>&& predicate)
+  static void DispatchFor(std::function<void(typename Identity<Comps>::Ptr ...)>&& predicate)
   {
     u64 const componentMask{ (((u64)1 << ComponentToIndex<typename Identity<Comps>::Type>()) | ... | (s64)0) };
 
@@ -277,23 +247,4 @@ namespace ACS
       }
     }
   }
-}
-
-/*
-* Component implementation.
-*/
-
-r32m4 Transform::LocalToWorld()
-{
-  r32m4 transform{ glm::identity<r32m4>() };
-
-  Actor* pNextParent{ mpActor->mpParent };
-
-  while (pNextParent)
-  {
-    transform *= TransformTo(pNextParent->mpTransform->mPosition, pNextParent->mpTransform->mRotation, pNextParent->mpTransform->mScale);
-    pNextParent = pNextParent->mpParent;
-  }
-
-  return transform * TransformTo(mPosition, mRotation, mScale);
 }

@@ -2,8 +2,7 @@
 
 #include <Core.h>
 #include <Types.h>
-#include <ACS.h>
-#include <Utility.h>
+#include <Component.h>
 
 /*
 * Default camera.
