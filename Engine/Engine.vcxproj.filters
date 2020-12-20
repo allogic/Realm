@@ -90,6 +90,9 @@
     <ClInclude Include="Shaders\Gizmo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Uniforms\Map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window.cpp">

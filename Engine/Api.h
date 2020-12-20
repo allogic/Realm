@@ -27,4 +27,6 @@
 #include <Shaders/Gizmo.h>
 
 #include <Buffers/Sprite.h>
+
 #include <Uniforms/Projection.h>
+#include <Uniforms/Map.h>

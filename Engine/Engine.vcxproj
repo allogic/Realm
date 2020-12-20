@@ -171,6 +171,7 @@
     <ClInclude Include="Components\Shader.h" />
     <ClInclude Include="Components\RenderShader.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="Uniforms\Map.h" />
     <ClInclude Include="Uniforms\Projection.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Vertex.h" />

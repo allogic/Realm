@@ -4,13 +4,13 @@
 #include <Types.h>
 
 /*
-* Transform buffer layouts.
+* Sprite buffer layouts.
 */
 
 struct alignas(4) GlSprite
 {
-  r32v3 mPosition    {};
-  r32v3 mRotation    {};
-  r32v3 mScale       { 1.f, 1.f, 1.f };
+  r32v4 mPosition    {};
+  r32v4 mRotation    {};
+  r32v4 mScale       { 1.f, 1.f, 1.f, 1.f };
   u32   mTextureIndex{};
 };

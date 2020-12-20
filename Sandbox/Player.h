@@ -97,5 +97,8 @@ void Player::OnUpdateFixed(r32 time, r32 timeDelta)
 }
 void Player::OnGizmo()
 {
+  mpRenderer->PushLine({ 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f }, { 1.f, 0.f, 0.f, 1.f });
+  mpRenderer->PushLine({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, { 0.f, 1.f, 0.f, 1.f });
+
   mpRenderer->PushRect(r32v3{ mTilePosition + mTileSize / 2.f, 0.f }, r32v3{ mTileSize, 0.f }, { 1.f, 1.f, 1.f, 1.f });
 }

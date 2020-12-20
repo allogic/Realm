@@ -11,9 +11,9 @@ SHADER_VERSION                      \
 R"glsl(
 struct Sprite
 {
-  float position[3];
-  float rotation[3];
-  float scale[3];
+  float position[4];
+  float rotation[4];
+  float scale[4];
   uint  textureIndex;
 };
 layout (binding = 0) uniform GlProjection
@@ -36,7 +36,7 @@ layout (location = 0) out VertOut
   vec4 color;
   uint textureIndex;
 } vertOut;
-vec3 ToVec3(in float a[3]) { return vec3(a[0], a[1], a[2]); }
+vec3 ToVec3(in float a[4]) { return vec3(a[0], a[1], a[2]); }
 mat4 Rotate3D(in vec3 axis, in float angle)
 {
   axis = normalize(axis);
@@ -92,25 +92,49 @@ SHADER_NOISE_FUNCTIONS              \
 R"glsl(
 struct Sprite
 {
-  float position[3];
-  float rotation[3];
-  float scale[3];
+  float position[4];
+  float rotation[4];
+  float scale[4];
   uint  textureIndex;
+};
+layout (binding = 0) uniform GlMap
+{
+  uint width;
+  uint height;
 };
 layout (binding = 0) buffer GlSprite
 {
   Sprite sprites[];
 };
-vec3 ToVec3(in float a[3]) { return vec3(a[0], a[1], a[2]); }
+vec3 ToVec3(in float a[4]) { return vec3(a[0], a[1], a[2]); }
+uint GetTextureIndex(in vec3 position, float d)
+{
+  uint textureIndex = 11;
+
+  float  l = fbm(position + vec3(-1,  0, 0));
+  float  r = fbm(position + vec3( 1,  0, 0));
+  float  b = fbm(position + vec3( 0, -1, 0));
+  float  t = fbm(position + vec3( 0,  1, 0));
+  float bl = fbm(position + vec3(-1, -1, 0));
+  float tl = fbm(position + vec3(-1,  1, 0));
+  float br = fbm(position + vec3( 1, -1, 0));
+  float tr = fbm(position + vec3( 1,  1, 0));
+
+  //if (l > d && r > d && b > d && t > d && bl > d && tl > d && tr > d) textureIndex = 0; // top right
+  //if (r > d && tl > d && t > d) textureIndex = 2; // top left
+
+  if (l > d && b > d && t > d && bl > d && tl > d) textureIndex = 10; // left
+  if (r > d && b > d && t > d && br > d && tr > d) textureIndex = 12; // right
+  if (t > d && l > d && r > d && tl > d && tr > d) textureIndex = 1;  // top
+  if (b > d && l > d && r > d && bl > d && br > d) textureIndex = 21; // bottom
+
+  if (l > d && r > d && b > d && t > d && bl > d && tl > d && br > d && tr > d) textureIndex = 3;
+
+  return textureIndex;
+}
 void main()
 {
   vec3 spritePosition = ToVec3(sprites[gl_GlobalInvocationID.x].position);
-
-  float density = fbm(spritePosition);
-
-  if (density <= 0.f)
-    sprites[gl_GlobalInvocationID.x].textureIndex = 92;
-  else
-    sprites[gl_GlobalInvocationID.x].textureIndex = 92;
+  sprites[gl_GlobalInvocationID.x].textureIndex = GetTextureIndex(spritePosition, 0.5f);
 }
 )glsl"

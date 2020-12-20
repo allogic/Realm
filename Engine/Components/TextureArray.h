@@ -12,7 +12,7 @@ struct TextureArray : Component
 {
   u32 mTextureId{};
 
-  TextureArray(s8 const* pTextureSource, u32 tileSize, u32 numTilesX);
+  TextureArray(s8 const* pTextureSource, u32 numTilesX, u32 numTilesY, u32 tileWidth, u32 tileHeight);
   virtual ~TextureArray();
 
   void Bind();

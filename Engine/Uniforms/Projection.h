@@ -4,7 +4,7 @@
 #include <Types.h>
 
 /*
-* Default uniform layouts.
+* Projection uniform layouts.
 */
 
 struct alignas(4) GlProjection
