@@ -32,7 +32,10 @@
     <ClInclude Include="Components\Controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders\Sprite.h">
+    <ClInclude Include="Shaders\ComputeTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders\ComputeDensity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

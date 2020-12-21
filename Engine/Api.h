@@ -24,6 +24,7 @@
 #include <Components/Transform.h>
 
 #include <Shaders/Utilities.h>
+#include <Shaders/Sprite.h>
 #include <Shaders/Gizmo.h>
 
 #include <Buffers/GlSprite.h>

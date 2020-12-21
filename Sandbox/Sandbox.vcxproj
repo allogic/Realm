@@ -157,7 +157,8 @@
   <ItemGroup>
     <ClInclude Include="Components\Controller.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="Shaders\Sprite.h" />
+    <ClInclude Include="Shaders\ComputeDensity.h" />
+    <ClInclude Include="Shaders\ComputeTexture.h" />
     <ClInclude Include="WorldManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

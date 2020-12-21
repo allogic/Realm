@@ -2,7 +2,8 @@
 
 #include <Api.h>
 
-#include <Shaders/Sprite.h>
+#include <Shaders/ComputeDensity.h>
+#include <Shaders/ComputeTexture.h>
 
 /*
 * World manager.
@@ -13,6 +14,8 @@ struct WorldManager : Actor
   u32v2                     mNumSprites              { 64, 64 };
   u32v2                     mSpriteSize              { 1, 1 };
 
+  // Render components
+
   RenderShader*             mpShaderRenderSprite     { ACS::Attach<RenderShader>(this, SHADER_RENDER_SPRITE_VERTEX, SHADER_RENDER_SPRITE_FRAGMENT) };
 
   Mesh<VertexDefault>*      mpMeshSprite             { ACS::Attach<Mesh<VertexDefault>>(this, 4u, 6u) };
@@ -21,18 +24,27 @@ struct WorldManager : Actor
 
   TextureArray*             mpTextureEnvironmentAtlas{ ACS::Attach<TextureArray>(this, ROOT_PATH "Textures\\EnvironmentAtlas.png", 10u, 10u, 16u, 16u) };
 
+  // Compute specific
+
   std::vector<r32>          mDensity                 {};
   std::vector<GlSprite>     mSprites                 {};
 
   ComputeBuffer<r32>        mBufferDensity           { mNumSprites.x * mNumSprites.y };
 
-  ComputeShader             mShaderComputeWorld      { SHADER_COMPUTE_SPRITE_WORLD };
+  ComputeShader             mShaderComputeDensity    { SHADER_COMPUTE_DENSITY };
+  ComputeShader             mShaderComputeTexture    { SHADER_COMPUTE_TEXTURE };
 
   WorldManager(Object* pObject);
   virtual ~WorldManager();
 
   void OnUpdateFixed(r32 time, r32 timeDelta) override;
   void OnGizmo() override;
+
+  void InitializeMesh();
+  void InitializeSprites();
+
+  void ComputeDensityMap();
+  void ComputeSpriteTextures();
 
   void SetSprite(r32v2 tilePosition, u32 textureIndex);
 };
@@ -44,53 +56,15 @@ struct WorldManager : Actor
 WorldManager::WorldManager(Object* pObject)
   : Actor{ pObject }
 {
-  std::vector<VertexDefault> vertices
-  {
-    { { 0.f, 0.f, 0.f }, { 0.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } },
-    { { 0.f, 1.f, 0.f }, { 1.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } },
-    { { 1.f, 0.f, 0.f }, { 0.f, 1.f }, { 0.f, 0.f, 0.f, 1.f } },
-    { { 1.f, 1.f, 0.f }, { 1.f, 1.f }, { 0.f, 0.f, 0.f, 1.f } },
-  };
-  std::vector<u32> elements{ 0, 1, 2, 2, 3, 1 };
+  InitializeMesh();
+  InitializeSprites();
 
-  mpMeshSprite->Set(vertices.data(), elements.data());
-
-  mSprites.resize(mNumSprites.x * mNumSprites.y);
-
-  for (u32 i{}; i < mNumSprites.x; i++)
-    for (u32 j{}; j < mNumSprites.y; j++)
-    {
-      u32 const index{ i + j * mNumSprites.x };
-
-      mSprites[index] =
-      {
-        .mPosition{ i * mSpriteSize.x, j * mSpriteSize.y, 0.f, 0.f },
-        .mScale   { mSpriteSize.x, mSpriteSize.y, 1.f, 1.f },
-      };
-    }
-
-  mpBufferSprite->Set(mSprites.data());
-
-  mpBufferSprite->Map(0);
-
-  mShaderComputeWorld.Bind();
-  mShaderComputeWorld.Execute(mNumSprites.x * mNumSprites.y / 32, 1, 1);
+  ComputeDensityMap();
+  ComputeSpriteTextures();
 }
 WorldManager::~WorldManager()
 {
 
-}
-
-void WorldManager::SetSprite(r32v2 tilePosition, u32 textureIndex)
-{
-  GlSprite sprite
-  {
-    .mPosition    { tilePosition, 0.f, 0.f },
-    .mTextureIndex{ textureIndex },
-  };
-  u32 tileIndex{ (u32)(tilePosition.x + tilePosition.y * mNumSprites.x) };
-
-  mpBufferSprite->Set(&sprite, tileIndex, 1);
 }
 
 void WorldManager::OnUpdateFixed(r32 time, r32 timeDelta)
@@ -107,4 +81,64 @@ void WorldManager::OnGizmo()
 
     mpRenderer->PushRect({ sprite.mPosition.x + 0.5f, sprite.mPosition.y + 0.5f, 0.f }, { 0.5f, 0.5f, 1.f }, color);
   }
+}
+
+void WorldManager::InitializeMesh()
+{
+  std::vector<VertexDefault> vertices
+  {
+    { { 0.f, 0.f, 0.f }, { 0.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } },
+    { { 0.f, 1.f, 0.f }, { 1.f, 0.f }, { 0.f, 0.f, 0.f, 1.f } },
+    { { 1.f, 0.f, 0.f }, { 0.f, 1.f }, { 0.f, 0.f, 0.f, 1.f } },
+    { { 1.f, 1.f, 0.f }, { 1.f, 1.f }, { 0.f, 0.f, 0.f, 1.f } },
+  };
+  std::vector<u32> elements{ 0, 1, 2, 2, 3, 1 };
+
+  mpMeshSprite->Set(vertices.data(), elements.data());
+}
+void WorldManager::InitializeSprites()
+{
+  mSprites.resize(mNumSprites.x * mNumSprites.y);
+
+  for (u32 i{}; i < mNumSprites.x; i++)
+    for (u32 j{}; j < mNumSprites.y; j++)
+    {
+      u32 const index{ i + j * mNumSprites.x };
+
+      mSprites[index] =
+      {
+        .mPosition{ i * mSpriteSize.x, j * mSpriteSize.y, 0.f, 0.f },
+        .mScale   { mSpriteSize.x, mSpriteSize.y, 1.f, 1.f },
+      };
+    }
+
+  mpBufferSprite->Set(mSprites.data());
+}
+
+void WorldManager::ComputeDensityMap()
+{
+  mBufferDensity.Map(0);
+
+  mShaderComputeDensity.Bind();
+  mShaderComputeDensity.Execute(mNumSprites.x / 32, mNumSprites.y / 32, 1);
+}
+void WorldManager::ComputeSpriteTextures()
+{
+  mpBufferSprite->Map(0);
+  mBufferDensity.Map(1);
+
+  mShaderComputeTexture.Bind();
+  mShaderComputeTexture.Execute(mNumSprites.x * mNumSprites.y / 32, 1, 1);
+}
+
+void WorldManager::SetSprite(r32v2 tilePosition, u32 textureIndex)
+{
+  GlSprite sprite
+  {
+    .mPosition    { tilePosition, 0.f, 0.f },
+    .mTextureIndex{ textureIndex },
+  };
+  u32 tileIndex{ (u32)(tilePosition.x + tilePosition.y * mNumSprites.x) };
+
+  mpBufferSprite->Set(&sprite, tileIndex, 1);
 }

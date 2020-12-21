@@ -155,6 +155,7 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Shaders\Gizmo.h" />
+    <ClInclude Include="Shaders\Sprite.h" />
     <ClInclude Include="Shaders\Utilities.h" />
     <ClInclude Include="Components\Texture.h" />
     <ClInclude Include="Components\TextureArray.h" />
