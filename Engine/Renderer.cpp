@@ -99,7 +99,10 @@ void Renderer::Render()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // Geometry pass
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   PassGeometry();
+  glDisable(GL_BLEND);
 
   // Light pass
   PassLight();

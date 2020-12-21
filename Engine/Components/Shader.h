@@ -25,6 +25,8 @@ struct Shader : Component
 
   u32 CheckCompileStatus(u32 shaderId);
   u32 CheckLinkStatus();
+
+  void SetU32(s8 const* pName, u32 value);
 };
 
 /*

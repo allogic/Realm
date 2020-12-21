@@ -49,33 +49,32 @@ float noise(vec3 x) {
                mix(mix( hash(n + dot(step, vec3(0, 0, 1))), hash(n + dot(step, vec3(1, 0, 1))), u.x),
                    mix( hash(n + dot(step, vec3(0, 1, 1))), hash(n + dot(step, vec3(1, 1, 1))), u.x), u.y), u.z);
 }
-float fbm(float x) {
+float fbm(float x, float f) {
   float v = 0.0;
   float a = 0.5;
   float shift = float(100);
   for (int i = 0; i < NUM_OCTAVES; ++i) {
-    v += a * noise(x);
+    v += a * noise(x*f);
     x = x * 2.0 + shift;
     a *= 0.5;
   }
   return v;
 }
-float fbm(vec2 x) {
+float fbm(vec2 x, float f) {
   float v = 0.0;
   float a = 0.5;
   vec2 shift = vec2(100);
   mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.50));
   for (int i = 0; i < NUM_OCTAVES; ++i) {
-    v += a * noise(x);
+    v += a * noise(x*f);
     x = rot * x * 2.0 + shift;
     a *= 0.5;
   }
   return v;
 }
-float fbm(vec3 x) {
+float fbm(vec3 x, float f) {
   float v = 0.0;
   float a = 0.5;
-  float f = 0.04;
   vec3 shift = vec3(100);
   for (int i = 0; i < NUM_OCTAVES; ++i) {
     v += a * noise(x*f);

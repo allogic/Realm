@@ -15,6 +15,11 @@ Shader::~Shader()
   glDeleteProgram(mProgramId);
 }
 
+void Shader::Bind()
+{
+  glUseProgram(mProgramId);
+}
+
 u32 Shader::CompileShader(u32 shaderId, s8 const* pShaderSource)
 {
   glShaderSource(shaderId, 1, &pShaderSource, nullptr);
@@ -61,7 +66,11 @@ u32 Shader::CheckLinkStatus()
 
   return 0;
 }
-void Shader::Bind()
+
+void Shader::SetU32(s8 const* pName, u32 value)
 {
-  glUseProgram(mProgramId);
+  glUniform1ui(
+    glGetUniformLocation(mProgramId, pName),
+    value
+  );
 }

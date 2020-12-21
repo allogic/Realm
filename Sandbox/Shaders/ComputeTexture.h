@@ -3,13 +3,13 @@
 #include <Api.h>
 
 /*
-* Compute texture ids.
+* Compute textures.
 */
 
 #define SHADER_COMPUTE_TEXTURE \
 SHADER_VERSION                 \
 R"glsl(
-layout(local_size_x = 32) in;
+layout (local_size_x = 32, local_size_y = 32) in;
 struct Sprite
 {
   float position[4];
@@ -48,19 +48,19 @@ uint GetTextureIndex(in vec3 position, float ground)
   float map[9];
   float pattern[9];
 
-  uint dimX = gl_NumWorkGroups.x * gl_WorkGroupSize.x;
+  uint globalSizeX = gl_NumWorkGroups.x * gl_WorkGroupSize.x;
   uint px = uint(position.x);
   uint py = uint(position.y);
 
-  uint itl = (px - 1) + (py + 1) * dimX;
-  uint it  = (px    ) + (py + 1) * dimX;
-  uint itr = (px + 1) + (py + 1) * dimX;
-  uint il  = (px - 1) + (py    ) * dimX;
-  uint im  = (px    ) + (py    ) * dimX;
-  uint ir  = (px + 1) + (py    ) * dimX;
-  uint ibl = (px - 1) + (py - 1) * dimX;
-  uint ib  = (px    ) + (py - 1) * dimX;
-  uint ibr = (px + 1) + (py - 1) * dimX;
+  uint itl = (px - 1) + (py + 1) * globalSizeX;
+  uint it  = (px    ) + (py + 1) * globalSizeX;
+  uint itr = (px + 1) + (py + 1) * globalSizeX;
+  uint il  = (px - 1) + (py    ) * globalSizeX;
+  uint im  = (px    ) + (py    ) * globalSizeX;
+  uint ir  = (px + 1) + (py    ) * globalSizeX;
+  uint ibl = (px - 1) + (py - 1) * globalSizeX;
+  uint ib  = (px    ) + (py - 1) * globalSizeX;
+  uint ibr = (px + 1) + (py - 1) * globalSizeX;
 
   map[0] = density[itl] > ground ? 1 : 0;
   map[1] = density[it ] > ground ? 1 : 0;
@@ -269,6 +269,13 @@ uint GetTextureIndex(in vec3 position, float ground)
     1, 0, 0
   );
   if (MatchPattern(map, pattern)) textureIndex = 24;
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 0,
+    1, 0, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 24;
 
   // top right corner
 
@@ -289,6 +296,13 @@ uint GetTextureIndex(in vec3 position, float ground)
   pattern = float[]
   (
     0, 1, 1,
+    0, 1, 1,
+    0, 0, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 23;
+  pattern = float[]
+  (
+    1, 1, 1,
     0, 1, 1,
     0, 0, 1
   );
@@ -317,6 +331,13 @@ uint GetTextureIndex(in vec3 position, float ground)
     1, 1, 1
   );
   if (MatchPattern(map, pattern)) textureIndex = 14;
+  pattern = float[]
+  (
+    1, 0, 0,
+    1, 1, 0,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 14;
 
   // bottom right corner
 
@@ -341,12 +362,34 @@ uint GetTextureIndex(in vec3 position, float ground)
     0, 1, 1
   );
   if (MatchPattern(map, pattern)) textureIndex = 13;
+  pattern = float[]
+  (
+    0, 0, 1,
+    0, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 13;
+
+  // fill
+
+  pattern = float[]
+  (
+    0, 0, 0,
+    0, 1, 0,
+    0, 0, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 4;
 
   return textureIndex;
 }
 void main()
 {
-  vec3 spritePosition = ToVec3(sprites[gl_GlobalInvocationID.x].position);
-  sprites[gl_GlobalInvocationID.x].textureIndex = GetTextureIndex(spritePosition, 0.5f);
+  uint globalIndex = gl_GlobalInvocationID.z * (gl_WorkGroupSize.x * gl_NumWorkGroups.x) * (gl_WorkGroupSize.y * gl_NumWorkGroups.y) +
+                     gl_GlobalInvocationID.y * (gl_WorkGroupSize.x * gl_NumWorkGroups.x) + 
+                     gl_GlobalInvocationID.x;
+
+  vec3 spritePosition = ToVec3(sprites[globalIndex].position);
+
+  sprites[globalIndex].textureIndex = GetTextureIndex(spritePosition, 0.5f);
 }
 )glsl"

@@ -73,9 +73,34 @@ namespace ACS
       pActor->mpObject->mMask |= componentMask;
       pActor->mpObject->mComponents[componentIndex] = new C{ std::forward<Args>(args) ... };
 
-      // link dflt. components with actors
+      // Link dflt. components with actors
       // in order to not provide constructors for components
       pActor->mpObject->mComponents[componentIndex]->mpActor = pActor;
+
+      return (C*)pActor->mpObject->mComponents[componentIndex];
+    }
+  }
+
+  template<typename C>
+  requires std::is_base_of_v<Component, C>
+  static C* AttachShared(Actor* pActor, C* pComponent)
+  {
+    u64 const componentIndex{ ComponentToIndex<C>() };
+    u64 const componentMask{ (u64)1 << componentIndex };
+
+    if (ContainsComponentBits(pActor->mpObject->mMask, componentMask))
+    {
+      // Should never obtain registered component ptr since it's a shared reference
+      assert(1);
+
+      return nullptr;
+    }
+    else
+    {
+      pActor->mpObject->mMask |= componentMask;
+      pActor->mpObject->mComponents[componentIndex] = pComponent;
+
+      // Do not link shared components with actors
 
       return (C*)pActor->mpObject->mComponents[componentIndex];
     }
@@ -93,7 +118,7 @@ namespace ACS
       return (C*)pActor->mpObject->mComponents[componentIndex];
     }
 
-    assert(true);
+    assert(1);
 
     return nullptr;
   }
@@ -114,13 +139,13 @@ namespace ACS
 
       auto const [insertIt, _] { sObjectRegistry.emplace(pName, pObject) };
 
-      // create actor at least in order to maintain sub-component order initialization 
+      // Create actor at least in order to maintain sub-component order initialization 
       pObject->mpActor = new A{ pObject, std::forward<Args>(args) ... };
       pObject->mpActor->mpWindow = Instance<Window>::Get("Window");
       pObject->mpActor->mpRenderer = Instance<Renderer>::Get("Renderer");
       pObject->mpActor->mpName = pName;
 
-      // attach default components
+      // Attach default components
       pObject->mpActor->mpTransform = Attach<Transform>(pObject->mpActor);
 
       return (A*)insertIt->second->mpActor;

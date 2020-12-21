@@ -155,11 +155,12 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actors\ChunkManager.h" />
     <ClInclude Include="Components\Controller.h" />
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="Actors\Player.h" />
     <ClInclude Include="Shaders\ComputeDensity.h" />
     <ClInclude Include="Shaders\ComputeTexture.h" />
-    <ClInclude Include="WorldManager.h" />
+    <ClInclude Include="Actors\Chunk.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

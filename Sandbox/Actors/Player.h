@@ -4,7 +4,7 @@
 
 #include <Components/Controller.h>
 
-#include <WorldManager.h>
+#include <Actors/ChunkManager.h>
 
 /*
 * Player controller.
@@ -12,7 +12,7 @@
 
 struct Player : Actor
 {
-  WorldManager* mpWorldManager    { ACS::Create<WorldManager>("WorldManager") };
+  ChunkManager* mpChunkManager    { ACS::Create<ChunkManager>("ChunkManager") };
 
   Camera*       mpCamera          { ACS::Attach<Camera>(this) };
   Controller*   mpController      { ACS::Attach<Controller>(this) };
@@ -79,10 +79,20 @@ void Player::OnUpdate(r32 time, r32 timeDelta)
   mTileSize = { 1.f, 1.f };
   mTilePosition = { glm::floor(r32v2{ -mpTransform->mPosition } + mouseScreen) };
 
+  // Density manipulation
+  if (mpWindow->KeyHeld(GLFW_KEY_A))
+  {
+    //mpChunkManager->SetDensity(mTilePosition, 1);
+  }
+  if (mpWindow->KeyHeld(GLFW_KEY_S))
+  {
+    //mpChunkManager->SetDensity(mTilePosition, 0);
+  }
+
   // Tile placement
   if (mpWindow->MouseHeld(GLFW_MOUSE_BUTTON_LEFT))
   {
-    mpWorldManager->SetSprite(mTilePosition, 11);
+    //mpChunkManager->SetSprite(mTilePosition, 11);
   }
 }
 void Player::OnUpdateFixed(r32 time, r32 timeDelta)

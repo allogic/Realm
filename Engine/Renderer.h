@@ -34,7 +34,7 @@ struct Renderer
   UniformBuffer<GlProjection> mProjectionBuffer  { 1 };
 
   RenderShader                mRenderGizmo       { SHADER_RENDER_GIZMO_VERTEX, SHADER_RENDER_GIZMO_FRAGMENT };
-  Mesh<VertexGizmo>           mMeshGizmo         { 65535, 131070 };
+  Mesh<VertexGizmo>           mMeshGizmo         { 131070, 262140 };
 
   u32                         mGizmoVertexOffset {};
   u32                         mGizmoElementOffset{};
