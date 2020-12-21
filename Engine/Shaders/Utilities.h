@@ -75,7 +75,7 @@ float fbm(vec2 x) {
 float fbm(vec3 x) {
   float v = 0.0;
   float a = 0.5;
-  float f = 0.02;
+  float f = 0.04;
   vec3 shift = vec3(100);
   for (int i = 0; i < NUM_OCTAVES; ++i) {
     v += a * noise(x*f);

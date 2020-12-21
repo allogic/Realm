@@ -92,9 +92,6 @@ void Renderer::Begin()
 
       mProjectionBuffer.Set(&mProjection);
     });
-
-  // Clear gizmo data
-  mMeshGizmo.Clear();
 }
 void Renderer::Render()
 {
@@ -108,10 +105,16 @@ void Renderer::Render()
   PassLight();
 
   // Gizmo pass
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   PassGizmo();
+  glDisable(GL_BLEND);
 }
 void Renderer::End()
 {
+  // Clear gizmo data
+  mMeshGizmo.Clear();
+
   mGizmoVertexOffset = 0;
   mGizmoElementOffset = 0;
 }

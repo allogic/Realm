@@ -82,7 +82,7 @@ void Player::OnUpdate(r32 time, r32 timeDelta)
   // Tile placement
   if (mpWindow->MouseHeld(GLFW_MOUSE_BUTTON_LEFT))
   {
-    mpWorldManager->SetSprite(mTilePosition, 92);
+    mpWorldManager->SetSprite(mTilePosition, 11);
   }
 }
 void Player::OnUpdateFixed(r32 time, r32 timeDelta)

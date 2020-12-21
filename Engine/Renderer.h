@@ -4,7 +4,6 @@
 #include <Types.h>
 #include <Instance.h>
 #include <Vertex.h>
-#include <ShaderUtilities.h>
 #include <Utility.h>
 
 #include <Components/Camera.h>
@@ -15,10 +14,12 @@
 #include <Components/TextureArray.h>
 #include <Components/Mesh.h>
 
+#include <Shaders/Utilities.h>
 #include <Shaders/Gizmo.h>
 
-#include <Buffers/Sprite.h>
-#include <Uniforms/Projection.h>
+#include <Buffers/GlSprite.h>
+
+#include <Uniforms/GlProjection.h>
 
 /*
 * Default renderer.

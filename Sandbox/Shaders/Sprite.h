@@ -50,6 +50,13 @@ mat4 Rotate3D(in vec3 axis, in float angle)
     0.f,                                0.f,                                0.f,                                1.f
   );
 }
+vec2 RotateUV(in vec2 uv, in float rotation, in vec2 mid)
+{
+    return vec2(
+      cos(rotation) * (uv.x - mid.x) + sin(rotation) * (uv.y - mid.y) + mid.x,
+      cos(rotation) * (uv.y - mid.y) - sin(rotation) * (uv.x - mid.x) + mid.y
+    );
+}
 void main()
 {
   vec3 spritePosition = ToVec3(sprites[gl_InstanceID].position);
@@ -58,7 +65,7 @@ void main()
   uint spriteTextureIndex = sprites[gl_InstanceID].textureIndex;
   mat4 tvp = uProjection * uView * uTransform;
   vertOut.position = vec4(uTransform * vec4(spritePosition + iPosition * spriteScale, 1.f)).xyz;
-  vertOut.uv = iUv;
+  vertOut.uv = RotateUV(iUv, radians(90.f), vec2(0.5f, 0.5f));
   vertOut.color = iColor;
   vertOut.textureIndex = spriteTextureIndex;
   gl_Position = tvp * vec4(spritePosition + iPosition * spriteScale, 1.f);
@@ -97,38 +104,312 @@ struct Sprite
   float scale[4];
   uint  textureIndex;
 };
-layout (binding = 0) uniform GlMap
-{
-  uint width;
-  uint height;
-};
 layout (binding = 0) buffer GlSprite
 {
   Sprite sprites[];
 };
 vec3 ToVec3(in float a[4]) { return vec3(a[0], a[1], a[2]); }
-uint GetTextureIndex(in vec3 position, float d)
+bool MatchPattern(in float[9] map, in float[9] pattern)
+{
+  bool match = true;
+
+  if (map[0] == pattern[0]) match = false;
+  if (map[1] == pattern[1]) match = false;
+  if (map[2] == pattern[2]) match = false;
+  if (map[3] == pattern[3]) match = false;
+  if (map[4] == pattern[4]) match = false;
+  if (map[5] == pattern[5]) match = false;
+  if (map[6] == pattern[6]) match = false;
+  if (map[7] == pattern[7]) match = false;
+  if (map[8] == pattern[8]) match = false;
+
+  return match;
+}
+uint GetTextureIndex(in vec3 position, float ground)
 {
   uint textureIndex = 11;
+  float map[9];
+  float pattern[9];
 
-  float  l = fbm(position + vec3(-1,  0, 0));
-  float  r = fbm(position + vec3( 1,  0, 0));
-  float  b = fbm(position + vec3( 0, -1, 0));
-  float  t = fbm(position + vec3( 0,  1, 0));
-  float bl = fbm(position + vec3(-1, -1, 0));
-  float tl = fbm(position + vec3(-1,  1, 0));
-  float br = fbm(position + vec3( 1, -1, 0));
-  float tr = fbm(position + vec3( 1,  1, 0));
+  map[0] = fbm(position + vec3(-1,  1, 0)) > ground ? 1 : 0;
+  map[1] = fbm(position + vec3( 0,  1, 0)) > ground ? 1 : 0;
+  map[2] = fbm(position + vec3( 1,  1, 0)) > ground ? 1 : 0;
+  map[3] = fbm(position + vec3(-1,  0, 0)) > ground ? 1 : 0;
+  map[4] = fbm(position)                   > ground ? 1 : 0;
+  map[5] = fbm(position + vec3( 1,  0, 0)) > ground ? 1 : 0;
+  map[6] = fbm(position + vec3(-1, -1, 0)) > ground ? 1 : 0;
+  map[7] = fbm(position + vec3( 0, -1, 0)) > ground ? 1 : 0;
+  map[8] = fbm(position + vec3( 1, -1, 0)) > ground ? 1 : 0;
 
-  //if (l > d && r > d && b > d && t > d && bl > d && tl > d && tr > d) textureIndex = 0; // top right
-  //if (r > d && tl > d && t > d) textureIndex = 2; // top left
+  // fill
 
-  if (l > d && b > d && t > d && bl > d && tl > d) textureIndex = 10; // left
-  if (r > d && b > d && t > d && br > d && tr > d) textureIndex = 12; // right
-  if (t > d && l > d && r > d && tl > d && tr > d) textureIndex = 1;  // top
-  if (b > d && l > d && r > d && bl > d && br > d) textureIndex = 21; // bottom
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 3;
 
-  if (l > d && r > d && b > d && t > d && bl > d && tl > d && br > d && tr > d) textureIndex = 3;
+  // right
+
+  pattern = float[]
+  (
+    0, 1, 1,
+    0, 1, 1,
+    0, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 12;
+  pattern = float[]
+  (
+    1, 1, 1,
+    0, 1, 1,
+    0, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 12;
+  pattern = float[]
+  (
+    0, 1, 1,
+    0, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 12;
+  pattern = float[]
+  (
+    1, 1, 1,
+    0, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 12;
+
+  // left
+
+  pattern = float[]
+  (
+    1, 1, 0,
+    1, 1, 0,
+    1, 1, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 10;
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 0,
+    1, 1, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 10;
+  pattern = float[]
+  (
+    1, 1, 0,
+    1, 1, 0,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 10;
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 0,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 10;
+
+  // top
+
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 1,
+    0, 0, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 1;
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 1,
+    1, 0, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 1;
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 1,
+    0, 0, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 1;
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 1,
+    1, 0, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 1;
+
+  // bottom
+
+  pattern = float[]
+  (
+    0, 0, 0,
+    1, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 21;
+  pattern = float[]
+  (
+    1, 0, 0,
+    1, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 21;
+  pattern = float[]
+  (
+    0, 0, 1,
+    1, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 21;
+  pattern = float[]
+  (
+    1, 0, 1,
+    1, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 21;
+
+  // bottom right
+
+  pattern = float[]
+  (
+    0, 1, 1,
+    1, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 22;
+
+  // bottom left
+
+  pattern = float[]
+  (
+    1, 1, 0,
+    1, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 20;
+
+  // top left
+
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 1,
+    1, 1, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 0;
+
+  // top right
+
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 1,
+    0, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 2;
+
+   // top left corner
+
+  pattern = float[]
+  (
+    1, 1, 0,
+    1, 1, 0,
+    0, 0, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 24;
+  pattern = float[]
+  (
+    1, 1, 1,
+    1, 1, 0,
+    0, 0, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 24;
+  pattern = float[]
+  (
+    1, 1, 0,
+    1, 1, 0,
+    1, 0, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 24;
+
+  // top right corner
+
+  pattern = float[]
+  (
+    0, 1, 1,
+    0, 1, 1,
+    0, 0, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 23;
+  pattern = float[]
+  (
+    1, 1, 1,
+    0, 1, 1,
+    0, 0, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 23;
+  pattern = float[]
+  (
+    0, 1, 1,
+    0, 1, 1,
+    0, 0, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 23;
+
+  // bottom left corner
+
+  pattern = float[]
+  (
+    0, 0, 0,
+    1, 1, 0,
+    1, 1, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 14;
+  pattern = float[]
+  (
+    1, 0, 0,
+    1, 1, 0,
+    1, 1, 0
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 14;
+  pattern = float[]
+  (
+    0, 0, 0,
+    1, 1, 0,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 14;
+
+  // bottom right corner
+
+  pattern = float[]
+  (
+    0, 0, 0,
+    0, 1, 1,
+    0, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 13;
+  pattern = float[]
+  (
+    0, 0, 0,
+    0, 1, 1,
+    1, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 13;
+  pattern = float[]
+  (
+    0, 0, 1,
+    0, 1, 1,
+    0, 1, 1
+  );
+  if (MatchPattern(map, pattern)) textureIndex = 13;
 
   return textureIndex;
 }

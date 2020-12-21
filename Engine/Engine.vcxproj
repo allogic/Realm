@@ -155,10 +155,10 @@
     <ClInclude Include="Component.h" />
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Shaders\Gizmo.h" />
-    <ClInclude Include="ShaderUtilities.h" />
+    <ClInclude Include="Shaders\Utilities.h" />
     <ClInclude Include="Components\Texture.h" />
     <ClInclude Include="Components\TextureArray.h" />
-    <ClInclude Include="Buffers\Sprite.h" />
+    <ClInclude Include="Buffers\GlSprite.h" />
     <ClInclude Include="Components\Camera.h" />
     <ClInclude Include="Components\GenericBuffer.h" />
     <ClInclude Include="Components\ComputeShader.h" />
@@ -171,8 +171,7 @@
     <ClInclude Include="Components\Shader.h" />
     <ClInclude Include="Components\RenderShader.h" />
     <ClInclude Include="Types.h" />
-    <ClInclude Include="Uniforms\Map.h" />
-    <ClInclude Include="Uniforms\Projection.h" />
+    <ClInclude Include="Uniforms\GlProjection.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />

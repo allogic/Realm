@@ -12,7 +12,6 @@
 #include <Vertex.h>
 #include <Renderer.h>
 #include <Utility.h>
-#include <ShaderUtilities.h>
 
 #include <Components/Camera.h>
 #include <Components/ComputeShader.h>
@@ -24,9 +23,9 @@
 #include <Components/TextureArray.h>
 #include <Components/Transform.h>
 
+#include <Shaders/Utilities.h>
 #include <Shaders/Gizmo.h>
 
-#include <Buffers/Sprite.h>
+#include <Buffers/GlSprite.h>
 
-#include <Uniforms/Projection.h>
-#include <Uniforms/Map.h>
+#include <Uniforms/GlProjection.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <ShaderUtilities.h>
+#include <Shaders/Utilities.h>
 
 /*
 * Gizmo shader.
