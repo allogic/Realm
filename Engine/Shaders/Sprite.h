@@ -86,9 +86,9 @@ layout (location = 0) in VertOut
   vec4 color;
   flat uint textureIndex;
 } fragIn;
-layout (location = 0) out vec4 oColor;
+layout (location = 0) out vec4 oAlbedo;
 void main()
 {
-  oColor = texture(uEnvironmentAtlas, vec3(fragIn.uv, fragIn.textureIndex));
+  oAlbedo = texture(uEnvironmentAtlas, vec3(fragIn.uv, fragIn.textureIndex));
 }
 )glsl"

@@ -65,6 +65,14 @@ Mesh<T>::Mesh(u32 vertexBufferSize, u32 elementBufferSize)
       glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(T), (void*)(sizeof(r32v3)));
       break;
     }
+    case eVertexTypeScreen:
+    {
+      glEnableVertexAttribArray(0);
+      glEnableVertexAttribArray(1);
+      glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(T), (void*)(0));
+      glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(T), (void*)(sizeof(r32v3)));
+      break;
+    }
   }
   mpVbo->Unbind();
 

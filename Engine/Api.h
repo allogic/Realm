@@ -10,8 +10,11 @@
 #include <Window.h>
 #include <ACS.h>
 #include <Vertex.h>
+#include <FrameBuffer.h>
 #include <Renderer.h>
 #include <Utility.h>
+#include <DepthTexture.h>
+#include <DepthStencilTexture.h>
 
 #include <Components/Camera.h>
 #include <Components/ComputeShader.h>

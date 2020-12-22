@@ -11,6 +11,7 @@ enum VertexType
 {
   eVertexTypeDefault,
   eVertexTypeGizmo,
+  eVertexTypeScreen,
 };
 
 struct VertexDefault
@@ -27,4 +28,11 @@ struct VertexGizmo
 
   r32v3 mPosition{};
   r32v4 mColor   {};
+};
+struct VertexScreen
+{
+  constexpr static VertexType sType{ eVertexTypeScreen };
+
+  r32v3 mPosition{};
+  r32v2 mUv      {};
 };

@@ -13,8 +13,18 @@ Renderer::Renderer()
 Renderer::Renderer(u32 width, u32 height)
   : mWidth{ width }
   , mHeight{ height }
+  , mFrameBuffer{ 1280, 720 }
 {
+  std::vector<VertexScreen> vertices
+  {
+    { { -1.f, -1.f, 0.f }, { 0.f, 0.f } },
+    { { -1.f,  1.f, 0.f }, { 0.f, 1.f } },
+    { {  1.f, -1.f, 0.f }, { 1.f, 0.f } },
+    { {  1.f,  1.f, 0.f }, { 1.f, 1.f } },
+  };
+  std::vector<u32> elements{ 0, 1, 2, 2, 3, 1 };
 
+  mMeshScreen.Set(vertices.data(), elements.data());
 }
 Renderer::~Renderer()
 {
@@ -44,7 +54,7 @@ void Renderer::PassGeometry()
 
       pSpriteBuffer->Map(0);
 
-      pTextureArray->Map(0);
+      pTextureArray->MapSampler(0);
 
       pRenderShader->Bind();
       pMesh->Bind();
@@ -55,6 +65,16 @@ void Renderer::PassGeometry()
 void Renderer::PassLight()
 {
 
+}
+void Renderer::PassPostProcess()
+{
+  mFrameBuffer.mTextureAlbedo.MapSampler(0);
+
+  mShaderPostProcess.Bind();
+
+  mMeshScreen.Bind();
+
+  glDrawElements(GL_TRIANGLES, mMeshScreen.mpEbo->mBufferSize, GL_UNSIGNED_INT, nullptr);
 }
 void Renderer::PassGizmo()
 {
@@ -69,10 +89,25 @@ void Renderer::PassGizmo()
   mProjection.mTransform = TransformTo({ 0.f, 0.f, 0.f }, { 0.f, 0.f, 0.f }, { 1.f, 1.f, 1.f });
   mProjectionBuffer.Set(&mProjection);
 
-  mRenderGizmo.Bind();
+  mShaderRenderGizmo.Bind();
   mMeshGizmo.Bind();
 
   glDrawElements(GL_LINES, mGizmoElementOffset, GL_UNSIGNED_INT, nullptr);
+}
+void Renderer::PassImGui()
+{
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+
+  ImGui::NewFrame();
+  ACS::Dispatch([=](Actor* pActor)
+    {
+      pActor->OnImGui();
+    });
+  ImGui::EndFrame();
+  ImGui::Render();
+
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Renderer::Begin()
@@ -99,19 +134,31 @@ void Renderer::Render()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // Geometry pass
+  mFrameBuffer.BindWrite();
+  glClearColor(0.f, 0.f, 0.f, 1.f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   PassGeometry();
   glDisable(GL_BLEND);
+  mFrameBuffer.UnbindWrite();
 
   // Light pass
   PassLight();
+
+  // Post-Process pass
+  mFrameBuffer.BindRead();
+  PassPostProcess();
+  mFrameBuffer.UnbindRead();
 
   // Gizmo pass
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   PassGizmo();
   glDisable(GL_BLEND);
+
+  // ImGui pass
+  PassImGui();
 }
 void Renderer::End()
 {

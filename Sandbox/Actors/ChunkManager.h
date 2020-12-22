@@ -18,7 +18,7 @@ struct ChunkManager : Actor
 
   RenderShader        mShaderRenderSprite     { SHADER_RENDER_SPRITE_VERTEX, SHADER_RENDER_SPRITE_FRAGMENT };
   Mesh<VertexDefault> mMeshSprite             { 4u, 6u };
-  TextureArray        mTextureEnvironmentAtlas{ ROOT_PATH "Textures\\EnvironmentAtlas.png", 10u, 10u, 16u, 16u };
+  TextureArray        mTextureEnvironmentAtlas{ ROOT_PATH "Textures\\EnvironmentAtlas.png", 10u, 10u, 16u, 16u, GL_RGBA8, GL_NEAREST, GL_CLAMP_TO_EDGE };
 
   // Compute specific
 

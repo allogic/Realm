@@ -35,6 +35,18 @@ Window::Window(u32 width, u32 height, s8 const* pTitle, u32 registerDebugMesseng
 
   gladLoadGL();
 
+  IMGUI_CHECKVERSION();
+
+  ImGui::CreateContext();
+
+  ImGuiIO& io{ ImGui::GetIO() };
+  ImGuiStyle& style{ ImGui::GetStyle() };
+  style.WindowRounding = 0.f;
+  style.WindowBorderSize = 0.f;
+
+  ImGui_ImplGlfw_InitForOpenGL(mpContext, 1);
+  ImGui_ImplOpenGL3_Init("#version 460 core");
+
   if (registerDebugMessenger)
   {
     glEnable(GL_DEBUG_OUTPUT);

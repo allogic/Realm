@@ -5,6 +5,7 @@
 #include <Instance.h>
 #include <Vertex.h>
 #include <Utility.h>
+#include <FrameBuffer.h>
 
 #include <Components/Camera.h>
 #include <Components/Mesh.h>
@@ -14,8 +15,8 @@
 #include <Components/TextureArray.h>
 #include <Components/Mesh.h>
 
-#include <Shaders/Utilities.h>
 #include <Shaders/Gizmo.h>
+#include <Shaders/Screen.h>
 
 #include <Buffers/GlSprite.h>
 
@@ -30,11 +31,16 @@ struct Renderer
   u32                         mWidth             {};
   u32                         mHeight            {};
 
+  FrameBuffer                 mFrameBuffer;
+
   GlProjection                mProjection        {};
   UniformBuffer<GlProjection> mProjectionBuffer  { 1 };
 
-  RenderShader                mRenderGizmo       { SHADER_RENDER_GIZMO_VERTEX, SHADER_RENDER_GIZMO_FRAGMENT };
+  RenderShader                mShaderRenderGizmo { SHADER_RENDER_GIZMO_VERTEX, SHADER_RENDER_GIZMO_FRAGMENT };
   Mesh<VertexGizmo>           mMeshGizmo         { 131070, 262140 };
+
+  RenderShader                mShaderPostProcess { SHADER_RENDER_POST_PROCESS_VERTEX, SHADER_RENDER_POST_PROCESS_FRAGMENT };
+  Mesh<VertexScreen>          mMeshScreen        { 4, 6 };
 
   u32                         mGizmoVertexOffset {};
   u32                         mGizmoElementOffset{};
@@ -45,7 +51,9 @@ struct Renderer
 
   void PassGeometry();
   void PassLight();
+  void PassPostProcess();
   void PassGizmo();
+  void PassImGui();
 
   void Begin();
   void Render();

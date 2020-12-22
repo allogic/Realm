@@ -80,13 +80,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir);$(SolutionDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)Include;$(SolutionDir)ImGui;$(IncludePath)</IncludePath>
     <SourcePath>$(ProjectDir);$(SourcePath)</SourcePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir);$(SolutionDir)Include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)Include;$(SolutionDir)ImGui;$(IncludePath)</IncludePath>
     <SourcePath>$(ProjectDir);$(SourcePath)</SourcePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -154,6 +154,12 @@
     <ClInclude Include="Api.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="DepthStencilTexture.h" />
+    <ClInclude Include="DepthTexture.h" />
+    <ClInclude Include="RenderBuffer.h" />
+    <ClInclude Include="Shaders\Screen.h" />
+    <ClInclude Include="StencilTexture.h" />
+    <ClInclude Include="FrameBuffer.h" />
     <ClInclude Include="Shaders\Gizmo.h" />
     <ClInclude Include="Shaders\Sprite.h" />
     <ClInclude Include="Shaders\Utilities.h" />
@@ -179,6 +185,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components\ComputeShader.cpp" />
+    <ClCompile Include="DepthStencilTexture.cpp" />
+    <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Components\RenderShader.cpp" />
     <ClCompile Include="Components\Shader.cpp" />
     <ClCompile Include="Components\Texture.cpp" />

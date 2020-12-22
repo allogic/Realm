@@ -5,10 +5,16 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sandbox", "Sandbox\Sandbox.vcxproj", "{840CC40C-07B9-4630-90F6-BE79A3D8F683}"
 	ProjectSection(ProjectDependencies) = postProject
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387} = {CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}
 		{224A7AE9-2CEE-4902-A30E-B2A9EDB1E813} = {224A7AE9-2CEE-4902-A30E-B2A9EDB1E813}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{224A7AE9-2CEE-4902-A30E-B2A9EDB1E813}"
+	ProjectSection(ProjectDependencies) = postProject
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387} = {CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImGui", "ImGui\ImGui.vcxproj", "{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +40,14 @@ Global
 		{224A7AE9-2CEE-4902-A30E-B2A9EDB1E813}.Release|x64.Build.0 = Release|x64
 		{224A7AE9-2CEE-4902-A30E-B2A9EDB1E813}.Release|x86.ActiveCfg = Release|Win32
 		{224A7AE9-2CEE-4902-A30E-B2A9EDB1E813}.Release|x86.Build.0 = Release|Win32
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}.Debug|x64.ActiveCfg = Debug|x64
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}.Debug|x64.Build.0 = Debug|x64
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}.Debug|x86.ActiveCfg = Debug|Win32
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}.Debug|x86.Build.0 = Debug|Win32
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}.Release|x64.ActiveCfg = Release|x64
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}.Release|x64.Build.0 = Release|x64
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}.Release|x86.ActiveCfg = Release|Win32
+		{CBD1CCD5-198A-4EFC-94F0-5EB9E32F8387}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

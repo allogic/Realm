@@ -32,4 +32,5 @@ struct Actor
   virtual void OnUpdate(r32 time, r32 timeDelta)      {}
   virtual void OnUpdateFixed(r32 time, r32 timeDelta) {}
   virtual void OnGizmo()                              {}
+  virtual void OnImGui()                              {}
 };
