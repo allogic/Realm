@@ -63,11 +63,14 @@ void main()
   vec3 spriteRotation = ToVec3(sprites[gl_InstanceID].rotation);
   vec3 spriteScale = ToVec3(sprites[gl_InstanceID].scale);
   uint spriteTextureIndex = sprites[gl_InstanceID].textureIndex;
+
   mat4 tvp = uProjection * uView * uTransform;
+
   vertOut.position = vec4(uTransform * vec4(spritePosition + iPosition * spriteScale, 1.f)).xyz;
   vertOut.uv = RotateUV(iUv, radians(90.f), vec2(0.5f, 0.5f));
   vertOut.color = iColor;
   vertOut.textureIndex = spriteTextureIndex;
+
   gl_Position = tvp * vec4(spritePosition + iPosition * spriteScale, 1.f);
 }
 )glsl"

@@ -159,6 +159,7 @@
     <ClInclude Include="Components\Controller.h" />
     <ClInclude Include="Actors\Player.h" />
     <ClInclude Include="Shaders\ComputeDensity.h" />
+    <ClInclude Include="Shaders\ComputeSmoothing.h" />
     <ClInclude Include="Shaders\ComputeTexture.h" />
     <ClInclude Include="Actors\Chunk.h" />
   </ItemGroup>

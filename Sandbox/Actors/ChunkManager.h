@@ -2,6 +2,10 @@
 
 #include <Api.h>
 
+#include <Shaders/ComputeDensity.h>
+#include <Shaders/ComputeSmoothing.h>
+#include <Shaders/ComputeTexture.h>
+
 #include <Actors/Chunk.h>
 
 /*
@@ -16,10 +20,16 @@ struct ChunkManager : Actor
   Mesh<VertexDefault> mMeshSprite             { 4u, 6u };
   TextureArray        mTextureEnvironmentAtlas{ ROOT_PATH "Textures\\EnvironmentAtlas.png", 10u, 10u, 16u, 16u };
 
+  // Compute specific
+
+  ComputeShader       mShaderComputeDensity   { SHADER_COMPUTE_DENSITY };
+  ComputeShader       mShaderComputeSmoothing { SHADER_COMPUTE_SMOOTHING };
+  ComputeShader       mShaderComputeTexture   { SHADER_COMPUTE_TEXTURE };
+
   // Child chunks
 
-  Chunk*              mpChunkBackground       { ACS::CreateChild<Chunk>(this, "Background", 0, &mShaderRenderSprite, &mMeshSprite, &mTextureEnvironmentAtlas) };
-  Chunk*              mpChunkForground        { ACS::CreateChild<Chunk>(this, "Forground", 1, &mShaderRenderSprite, &mMeshSprite, &mTextureEnvironmentAtlas) };
+  Chunk*              mpChunkBackground       { ACS::CreateChild<Chunk>(this, "Background", 0, &mShaderRenderSprite, &mMeshSprite, &mTextureEnvironmentAtlas, &mShaderComputeDensity, &mShaderComputeSmoothing, &mShaderComputeTexture) };
+  Chunk*              mpChunkForground        { ACS::CreateChild<Chunk>(this, "Forground", 1, &mShaderRenderSprite, &mMeshSprite, &mTextureEnvironmentAtlas, &mShaderComputeDensity, &mShaderComputeSmoothing, &mShaderComputeTexture) };
 
   ChunkManager(Object* pObject);
 
@@ -33,6 +43,9 @@ struct ChunkManager : Actor
 ChunkManager::ChunkManager(Object* pObject)
   : Actor{ pObject }
 {
+  mpChunkBackground->mpTransform->mPosition = { 0, 0, 0 };
+  mpChunkForground->mpTransform->mPosition = { 32, 0, 0 };
+
   InitializeMesh();
 }
 

@@ -41,5 +41,8 @@
     <ClInclude Include="Actors\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Shaders\ComputeSmoothing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

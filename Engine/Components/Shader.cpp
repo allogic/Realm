@@ -67,6 +67,13 @@ u32 Shader::CheckLinkStatus()
   return 0;
 }
 
+void Shader::SetS32(s8 const* pName, s32 value)
+{
+  glUniform1i(
+    glGetUniformLocation(mProgramId, pName),
+    value
+  );
+}
 void Shader::SetU32(s8 const* pName, u32 value)
 {
   glUniform1ui(
