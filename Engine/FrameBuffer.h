@@ -29,6 +29,4 @@ struct FrameBuffer
   void Unbind();
   void UnbindRead();
   void UnbindWrite();
-
-  void DebugRenderTextures();
 };

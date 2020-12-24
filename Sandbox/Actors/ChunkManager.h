@@ -28,8 +28,8 @@ struct ChunkManager : Actor
 
   // Child chunks
 
-  Chunk*              mpChunkBackground       { ACS::CreateChild<Chunk>(this, "Background", 0, &mShaderRenderSprite, &mMeshSprite, &mTextureEnvironmentAtlas, &mShaderComputeDensity, &mShaderComputeSmoothing, &mShaderComputeTexture) };
-  Chunk*              mpChunkForground        { ACS::CreateChild<Chunk>(this, "Forground", 1, &mShaderRenderSprite, &mMeshSprite, &mTextureEnvironmentAtlas, &mShaderComputeDensity, &mShaderComputeSmoothing, &mShaderComputeTexture) };
+  Chunk<0>*           mpChunkBackground       { ACS::CreateChild<Chunk<0>>(this, "Background", &mShaderRenderSprite, &mMeshSprite, &mTextureEnvironmentAtlas, &mShaderComputeDensity, &mShaderComputeSmoothing, &mShaderComputeTexture) };
+  Chunk<1>*           mpChunkForground        { ACS::CreateChild<Chunk<1>>(this, "Forground", &mShaderRenderSprite, &mMeshSprite, &mTextureEnvironmentAtlas, &mShaderComputeDensity, &mShaderComputeSmoothing, &mShaderComputeTexture) };
 
   ChunkManager(Object* pObject);
 

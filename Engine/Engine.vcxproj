@@ -154,6 +154,8 @@
     <ClInclude Include="Api.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="Gui.h" />
+    <ClInclude Include="Components\RenderLayer.h" />
     <ClInclude Include="DepthStencilTexture.h" />
     <ClInclude Include="DepthTexture.h" />
     <ClInclude Include="RenderBuffer.h" />
@@ -185,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Components\ComputeShader.cpp" />
+    <ClCompile Include="Gui.cpp" />
     <ClCompile Include="DepthStencilTexture.cpp" />
     <ClCompile Include="FrameBuffer.cpp" />
     <ClCompile Include="Components\RenderShader.cpp" />

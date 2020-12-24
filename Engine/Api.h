@@ -17,6 +17,7 @@
 #include <DepthStencilTexture.h>
 
 #include <Components/Camera.h>
+#include <Components/RenderLayer.h>
 #include <Components/ComputeShader.h>
 #include <Components/GenericBuffer.h>
 #include <Components/Mesh.h>

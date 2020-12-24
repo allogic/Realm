@@ -4,12 +4,8 @@
 #include <Types.h>
 #include <Event.h>
 #include <Instance.h>
-
-/*
-* Forward decls.
-*/
-
-struct Renderer;
+#include <ACS.h>
+#include <Renderer.h>
 
 /*
 * Window graphic context.

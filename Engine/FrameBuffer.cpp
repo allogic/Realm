@@ -55,12 +55,3 @@ void FrameBuffer::UnbindWrite()
 {
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
-
-void FrameBuffer::DebugRenderTextures()
-{
-  ImGui::Begin("FrameBuffer");
-
-
-
-  ImGui::End();
-}

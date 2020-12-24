@@ -2,14 +2,17 @@
 
 #include <Core.h>
 #include <Types.h>
+#include <ACS.h>
 #include <Instance.h>
 #include <Vertex.h>
 #include <Utility.h>
 #include <FrameBuffer.h>
+#include <Gui.h>
 
 #include <Components/Camera.h>
 #include <Components/Mesh.h>
 #include <Components/GenericBuffer.h>
+#include <Components/RenderLayer.h>
 #include <Components/RenderShader.h>
 #include <Components/Texture.h>
 #include <Components/TextureArray.h>
@@ -49,7 +52,9 @@ struct Renderer
   Renderer(u32 width, u32 height);
   virtual ~Renderer();
 
+  template<u32 Layer>
   void PassGeometry();
+
   void PassLight();
   void PassPostProcess();
   void PassGizmo();
@@ -62,3 +67,42 @@ struct Renderer
   void PushLine(r32v3 const& p0, r32v3 const& p1, r32v4 const& color);
   void PushRect(r32v3 const& position, r32v3 const& size, r32v4 const& color);
 };
+
+/*
+* Default renderer implementation.
+*/
+
+template<u32 Layer>
+void Renderer::PassGeometry()
+{
+  mProjectionBuffer.Map(0);
+
+  ACS::DispatchFor<
+    Transform,
+    RenderLayer<Layer>,
+    RenderShader,
+    Mesh<VertexDefault>,
+    ComputeBuffer<GlSprite>,
+    TextureArray
+  >([&](
+    Transform* pTransform,
+    RenderLayer<Layer>* pRenderLayer,
+    RenderShader* pRenderShader,
+    Mesh<VertexDefault>* pMesh,
+    ComputeBuffer<GlSprite>* pSpriteBuffer,
+    TextureArray* pTextureArray)
+    {
+      mProjection.mTransform = TransformTo(pTransform->mPosition, pTransform->mRotation, pTransform->mScale);
+
+      mProjectionBuffer.Set(&mProjection);
+
+      pSpriteBuffer->Map(0);
+
+      pTextureArray->MapSampler(0);
+
+      pRenderShader->Bind();
+      pMesh->Bind();
+
+      glDrawElementsInstanced(GL_TRIANGLES, pMesh->mpEbo->mBufferSize, GL_UNSIGNED_INT, nullptr, pSpriteBuffer->mBufferSize);
+    });
+}

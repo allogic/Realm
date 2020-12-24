@@ -35,7 +35,7 @@ namespace ACS
 
   template<typename C>
   requires std::is_base_of_v<Component, C>
-  static u64 ComponentToIndex()
+  u64 ComponentToIndex()
   {
     auto const identityIt{ sIdentityRegistry.find(typeid(C).hash_code()) };
 
@@ -59,7 +59,7 @@ namespace ACS
 
   template<typename C, typename ... Args>
   requires std::is_base_of_v<Component, C>
-  static C* Attach(Actor* pActor, Args&& ... args)
+  C* Attach(Actor* pActor, Args&& ... args)
   {
     u64 const componentIndex{ ComponentToIndex<C>() };
     u64 const componentMask{ (u64)1 << componentIndex };
@@ -83,7 +83,7 @@ namespace ACS
 
   template<typename C>
   requires std::is_base_of_v<Component, C>
-  static C* AttachShared(Actor* pActor, C* pComponent)
+  C* AttachShared(Actor* pActor, C* pComponent)
   {
     u64 const componentIndex{ ComponentToIndex<C>() };
     u64 const componentMask{ (u64)1 << componentIndex };
@@ -108,7 +108,7 @@ namespace ACS
 
   template<typename C>
   requires std::is_base_of_v<Component, C>
-  static C* Find(Actor* pActor)
+  C* Find(Actor* pActor)
   {
     u64 const componentIndex{ ComponentToIndex<C>() };
     u64 const componentMask{ (u64)1 << componentIndex };
@@ -129,7 +129,7 @@ namespace ACS
 
   template<typename A, typename ... Args>
   requires std::is_base_of_v<Actor, A>
-  static A* Create(s8 const* pName, Args&& ... args)
+  A* Create(s8 const* pName, Args&& ... args)
   {
     auto const objectIt{ sObjectRegistry.find(pName) };
 
@@ -156,7 +156,7 @@ namespace ACS
 
   template<typename A, typename ... Args>
   requires std::is_base_of_v<Actor, A>
-  static A* CreateChild(Actor* pActor, s8 const* pName, Args&& ... args)
+  A* CreateChild(Actor* pActor, s8 const* pName, Args&& ... args)
   {
     A* pChild{ Create<A>(pName, std::forward<Args>(args) ...) };
     pChild->mpParent = pActor;
@@ -210,7 +210,7 @@ namespace ACS
 
   template<typename ... Comps>
   requires (std::is_base_of_v<Component, typename Identity<Comps>::Type> && ...)
-  static void Dispatch(std::function<void(Actor*)>&& predicate)
+  void Dispatch(std::function<void(Actor*)>&& predicate)
   {
     for (auto const& [actorName, pObject] : sObjectRegistry)
     {
@@ -223,7 +223,7 @@ namespace ACS
 
   template<typename ... Comps>
   requires (std::is_base_of_v<Component, typename Identity<Comps>::Type> && ...)
-  static void DispatchFor(std::function<void(typename Identity<Comps>::Ptr ...)>&& predicate)
+  void DispatchFor(std::function<void(typename Identity<Comps>::Ptr ...)>&& predicate)
   {
     u64 const componentMask{ (((u64)1 << ComponentToIndex<typename Identity<Comps>::Type>()) | ... | (s64)0) };
 

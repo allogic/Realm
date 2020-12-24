@@ -1,6 +1,4 @@
 #include <Window.h>
-#include <Renderer.h>
-#include <ACS.h>
 
 /*
 * Window graphic context implementation.

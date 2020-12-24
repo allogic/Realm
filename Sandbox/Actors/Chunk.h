@@ -10,19 +10,19 @@
 * Chunk actor.
 */
 
+template<u32 Layer>
 struct Chunk : Actor
 {
   u32v2                     mNumSprites             { 32, 32 };
   u32v2                     mSpriteSize             { 1, 1 };
 
-  s32                       mLayer                  {};
-
   // Render components
 
+  RenderLayer<Layer>*       mpRenderLayer           {};
   RenderShader*             mpShaderRenderSprite    {};
   Mesh<VertexDefault>*      mpMeshSprite            {};
   TextureArray*             mpTextureAtlas          {};
-  ComputeBuffer<GlSprite>*  mpBufferSprite          { ACS::Attach<ComputeBuffer<GlSprite>>(this, mNumSprites.x * mNumSprites.y) };
+  ComputeBuffer<GlSprite>*  mpBufferSprite          {};
 
   // Compute specific
 
@@ -37,7 +37,6 @@ struct Chunk : Actor
 
   Chunk(
     Object* pObject,
-    s32 layer,
     RenderShader* pShaderRenderSprite,
     Mesh<VertexDefault>* pMesh,
     TextureArray* pTextureAtlas,
@@ -64,19 +63,20 @@ struct Chunk : Actor
 * Chunk actor implementation.
 */
 
-Chunk::Chunk(
+template<u32 Layer>
+Chunk<Layer>::Chunk(
   Object* pObject,
-  s32 layer,
   RenderShader* pShaderRenderSprite,
   Mesh<VertexDefault>* pMesh,
   TextureArray* pTextureAtlas,
   ComputeShader* pShaderComputeDensity,
   ComputeShader* pShaderComputeSmoothing,
   ComputeShader* pShaderComputeTexture)
-  : mLayer{ layer }
+  : mpRenderLayer{ ACS::Attach<RenderLayer<Layer>>(this) }
   , mpShaderRenderSprite{ ACS::AttachShared<RenderShader>(this, pShaderRenderSprite) }
   , mpMeshSprite{ ACS::AttachShared<Mesh<VertexDefault>>(this, pMesh) }
   , mpTextureAtlas{ ACS::AttachShared<TextureArray>(this, pTextureAtlas) }
+  , mpBufferSprite{ ACS::Attach<ComputeBuffer<GlSprite>>(this, mNumSprites.x * mNumSprites.y) }
   , mpShaderComputeDensity{ pShaderComputeDensity }
   , mpShaderComputeSmoothing{ pShaderComputeSmoothing }
   , mpShaderComputeTexture{ pShaderComputeTexture }
@@ -90,11 +90,13 @@ Chunk::Chunk(
   ComputeTextures();
 }
 
-void Chunk::OnUpdateFixed(r32 time, r32 timeDelta)
+template<u32 Layer>
+void Chunk<Layer>::OnUpdateFixed(r32 time, r32 timeDelta)
 {
   
 }
-void Chunk::OnGizmo()
+template<u32 Layer>
+void Chunk<Layer>::OnGizmo()
 {
   mBufferDensity.Get(mDensity.data());
 
@@ -110,13 +112,15 @@ void Chunk::OnGizmo()
     }
 }
 
-void Chunk::InitializeDensity()
+template<u32 Layer>
+void Chunk<Layer>::InitializeDensity()
 {
   mDensity.resize(mNumSprites.x * mNumSprites.y);
 
   mBufferDensity.Set(mDensity.data());
 }
-void Chunk::InitializeSprites()
+template<u32 Layer>
+void Chunk<Layer>::InitializeSprites()
 {
   mSprites.resize(mNumSprites.x * mNumSprites.y);
 
@@ -127,7 +131,7 @@ void Chunk::InitializeSprites()
 
       mSprites[index] =
       {
-        .mPosition{ i * mSpriteSize.x, j * mSpriteSize.y, mLayer, 0.f },
+        .mPosition{ i * mSpriteSize.x, j * mSpriteSize.y, Layer, 0.f },
         .mScale   { mSpriteSize.x, mSpriteSize.y, 1.f, 1.f },
       };
     }
@@ -135,17 +139,19 @@ void Chunk::InitializeSprites()
   mpBufferSprite->Set(mSprites.data());
 }
 
-void Chunk::ComputeDensity()
+template<u32 Layer>
+void Chunk<Layer>::ComputeDensity()
 {
   mBufferDensity.Map(0);
 
   mpShaderComputeDensity->Bind();
-  mpShaderComputeDensity->SetS32("uLayer", mLayer);
+  mpShaderComputeDensity->SetS32("uLayer", Layer);
   mpShaderComputeDensity->Execute(mNumSprites.x / 32, mNumSprites.y / 32, 1);
 
   mBufferDensity.Get(mDensity.data());
 }
-void Chunk::ComputeSmoothing()
+template<u32 Layer>
+void Chunk<Layer>::ComputeSmoothing()
 {
   mBufferDensity.Map(0);
 
@@ -156,7 +162,8 @@ void Chunk::ComputeSmoothing()
 
   mBufferDensity.Get(mDensity.data());
 }
-void Chunk::ComputeTextures()
+template<u32 Layer>
+void Chunk<Layer>::ComputeTextures()
 {
   mpBufferSprite->Map(0);
   mBufferDensity.Map(1);
@@ -165,13 +172,15 @@ void Chunk::ComputeTextures()
   mpShaderComputeTexture->Execute(mNumSprites.x / 32, mNumSprites.y / 32, 1);
 }
 
-void Chunk::SetDensity(r32v2 tilePosition, r32 density)
+template<u32 Layer>
+void Chunk<Layer>::SetDensity(r32v2 tilePosition, r32 density)
 {
   u32 tileIndex{ (u32)(tilePosition.x + tilePosition.y * mNumSprites.x) };
 
   mBufferDensity.Set(&density, tileIndex, 1);
 }
-void Chunk::SetSprite(r32v2 tilePosition, u32 textureIndex)
+template<u32 Layer>
+void Chunk<Layer>::SetSprite(r32v2 tilePosition, u32 textureIndex)
 {
   GlSprite sprite
   {

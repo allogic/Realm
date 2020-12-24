@@ -1,5 +1,4 @@
 #include <Renderer.h>
-#include <ACS.h>
 
 /*
 * Default renderer implementation.
@@ -31,37 +30,6 @@ Renderer::~Renderer()
 
 }
 
-void Renderer::PassGeometry()
-{
-  mProjectionBuffer.Map(0);
-
-  ACS::DispatchFor<
-    Transform,
-    RenderShader,
-    Mesh<VertexDefault>,
-    ComputeBuffer<GlSprite>,
-    TextureArray
-  >([&](
-    Transform* pTransform,
-    RenderShader* pRenderShader,
-    Mesh<VertexDefault>* pMesh,
-    ComputeBuffer<GlSprite>* pSpriteBuffer,
-    TextureArray* pTextureArray)
-    {
-      mProjection.mTransform = TransformTo(pTransform->mPosition, pTransform->mRotation, pTransform->mScale);
-
-      mProjectionBuffer.Set(&mProjection);
-
-      pSpriteBuffer->Map(0);
-
-      pTextureArray->MapSampler(0);
-
-      pRenderShader->Bind();
-      pMesh->Bind();
-
-      glDrawElementsInstanced(GL_TRIANGLES, pMesh->mpEbo->mBufferSize, GL_UNSIGNED_INT, nullptr, pSpriteBuffer->mBufferSize);
-    });
-}
 void Renderer::PassLight()
 {
 
@@ -100,10 +68,14 @@ void Renderer::PassImGui()
   ImGui_ImplGlfw_NewFrame();
 
   ImGui::NewFrame();
+
+  Gui::Toolbar(this);
+
   ACS::Dispatch([=](Actor* pActor)
     {
       pActor->OnImGui();
     });
+
   ImGui::EndFrame();
   ImGui::Render();
 
@@ -133,18 +105,15 @@ void Renderer::Render()
   glClearColor(0.f, 0.f, 0.f, 1.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // Geometry pass
+  // Geometry pass layer 0
   mFrameBuffer.BindWrite();
   glClearColor(0.f, 0.f, 0.f, 1.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  PassGeometry();
+  PassGeometry<0>();
   glDisable(GL_BLEND);
   mFrameBuffer.UnbindWrite();
-
-  // Light pass
-  PassLight();
 
   // Post-Process pass
   mFrameBuffer.BindRead();
