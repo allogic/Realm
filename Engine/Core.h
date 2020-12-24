@@ -73,3 +73,18 @@ struct Identity
   using Ref = T&;
   using CRef = T const&;
 };
+
+/*
+* Compile time string literal utility.
+*/
+
+template<u64 N>
+struct StringLiteral
+{
+  constexpr StringLiteral(s8 const (&str)[N])
+  {
+    std::copy_n(str, N, mValue);
+  }
+
+  s8 mValue[N] {};
+};

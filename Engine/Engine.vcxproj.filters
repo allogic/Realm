@@ -117,6 +117,9 @@
     <ClInclude Include="Gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShaderFactory\ShaderFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Window.cpp">
@@ -150,6 +153,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderFactory\ShaderFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

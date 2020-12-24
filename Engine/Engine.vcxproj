@@ -159,6 +159,7 @@
     <ClInclude Include="DepthStencilTexture.h" />
     <ClInclude Include="DepthTexture.h" />
     <ClInclude Include="RenderBuffer.h" />
+    <ClInclude Include="ShaderFactory\ShaderFactory.h" />
     <ClInclude Include="Shaders\Screen.h" />
     <ClInclude Include="StencilTexture.h" />
     <ClInclude Include="FrameBuffer.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="Components\TextureArray.cpp" />
     <ClCompile Include="Components\Transform.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="ShaderFactory\ShaderFactory.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
