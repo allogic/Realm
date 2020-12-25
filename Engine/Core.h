@@ -45,6 +45,11 @@
 #include <glm/gtc/random.hpp>
 #undef GLM_ENABLE_EXPERIMENTAL
 
+/* Internal includes
+*/
+
+#include <Types.h>
+
 /*
 * Time debug utilities.
 */

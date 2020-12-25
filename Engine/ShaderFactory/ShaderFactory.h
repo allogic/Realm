@@ -7,20 +7,19 @@
 * Glsl shader factory.
 */
 
-template<typename T, StringLiteral Name>
+template<typename T>
 struct Member
 {
   using Type = T;
-
-  constexpr static auto cName = Name.mValue;
 };
 
-template<typename T>
+template<typename T, typename U>
 struct Registry
 {
-  static s8 const* Resolve()
+  template<typename ... Args>
+  static U Resolve(Args&& ... args)
   {
-    return "test";
+    return U{ std::forward<Args>(args) ... };
   }
 };
 
@@ -29,6 +28,12 @@ struct Tuple {};
 
 struct ShaderFactory
 {
+
+  static void BeginLayout()
+  {
+
+  }
+
   template<
     typename ... Uniforms, template <typename ...> typename UniformTuple,
     typename ... Buffers, template <typename ...> typename BufferTuple
@@ -43,7 +48,7 @@ struct ShaderFactory
     std::cout << sizeof...(Uniforms) << std::endl;
     std::cout << sizeof...(Buffers) << std::endl;
 
-    std::cout << (Registry::Resolve<typename Identity<Uniforms>::Type>(), ...) << std::endl;
+    //std::cout << (Registry::Resolve<typename Identity<Uniforms>::Type>(), ...) << std::endl;
 
     return { vertexShader, fragmentShader };
   }

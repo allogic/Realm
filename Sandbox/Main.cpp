@@ -18,17 +18,17 @@ s32 main()
 
   struct MVP
   {
-    Member<r32m4, "projection"> mProjection{ ShaderFactory::Register<MVP>(this) };
-    Member<r32m4, "view">       mView      { ShaderFactory::Register<MVP>(this) };
-    Member<r32m4, "model">      mModel     { ShaderFactory::Register<MVP>(this) };
+    Member<r32m4> mProjection{ Registry<MVP, Member<r32m4>>::Resolve() };
+    Member<r32m4> mView      { Registry<MVP, Member<r32m4>>::Resolve() };
+    Member<r32m4> mModel     { Registry<MVP, Member<r32m4>>::Resolve() };
   };
 
   struct Sprite
   {
-    Member<r32v4, "position">  mPosition    {};
-    Member<r32v4, "rotation">  mRotation    {};
-    Member<r32v4, "scale">     mScale       {};
-    Member<r32,   "textureId"> mTextureIndex{};
+    Member<r32v4> mPosition    { Registry<Sprite, Member<r32v4>>::Resolve() };
+    Member<r32v4> mRotation    { Registry<Sprite, Member<r32v4>>::Resolve() };
+    Member<r32v4> mScale       { Registry<Sprite, Member<r32v4>>::Resolve() };
+    Member<r32>   mTextureIndex{ Registry<Sprite, Member<r32>>::Resolve() };
   };
 
   Tuple<MVP> uniforms{};
